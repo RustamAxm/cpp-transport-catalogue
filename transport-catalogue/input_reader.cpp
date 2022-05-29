@@ -3,8 +3,8 @@
 
 namespace data_frame_reader {
 
-    InputReader::InputReader() {
-        ReadTmpData();
+    InputReader::InputReader(std::istream& input) {
+        ReadTmpData(input);
     }
 
     std::vector<StopParserStruct> InputReader::GetStops() {
@@ -21,13 +21,13 @@ namespace data_frame_reader {
         return buses_;
     }
 
-    void InputReader::ReadTmpData() {
+    void InputReader::ReadTmpData(std::istream& input) {
         std::string line;
-        std::getline(std::cin, line);
+        std::getline(input, line);
         int n = std::stoi(line);
 
         for (int i = 0; i < n; i++) {
-            std::getline(std::cin, line);
+            std::getline(input, line);
             if (line[0] == 'S') {
                 tmp_stops.push_back(std::move(line));
             } else if (line[0] == 'B') {
@@ -124,4 +124,25 @@ namespace data_frame_reader {
         return {std::string(bus_number), circle, names_};
     }
 
+    void AddDataFrame (transport_catalogue::TransportCatalogue& catalogue, std::istream& input) {
+
+        data_frame_reader::InputReader add_data(input);
+
+        auto stops = add_data.GetStops();
+
+        for (const auto& stop : stops) {
+            catalogue.AddStop({stop.name_, stop.coord_});
+        }
+        auto buses = add_data.GetBuses();
+
+        for (const auto& bus : buses) {
+            catalogue.AddBus(bus.number_, bus.stops_, bus.circle);
+        }
+
+        for (const auto& stop : stops) {
+            for (const auto& x : stop.distances_to_stops) {
+                catalogue.SetDistances(stop.name_, x.stop, x.distance);
+            }
+        }
+    }
 }

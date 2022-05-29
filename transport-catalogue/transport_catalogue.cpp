@@ -12,8 +12,7 @@ namespace transport_catalogue {
     }
 
     size_t TransportCatalogue::DistanceFinder(const std::string_view first, const std::string_view second) {
-//             auto distance = static_cast<size_t> (ComputeDistance(stopname_to_stop_.at(first)->coord_,
-//                                                     stopname_to_stop_.at(second)->coord_));
+
         size_t distance = 0;
 
         std::pair<Stop*, Stop*> key_ = std::make_pair(stopname_to_stop_.at(first),
@@ -67,9 +66,9 @@ namespace transport_catalogue {
         return {stops, unique_stops};
     }
 
-    void TransportCatalogue::AddStop(const std::string& stop_name, double latitude, double longitude) {
-        Stop tmp_stop = {stop_name, latitude, longitude};
-        stops_.push_back(std::move(tmp_stop));
+    void TransportCatalogue::AddStop(Stop stop) {
+
+        stops_.push_back(std::move(stop));
         stopname_to_stop_.insert({stops_.back().name_, &stops_.back()});
     }
 
@@ -83,7 +82,7 @@ namespace transport_catalogue {
         }
     }
 
-    void TransportCatalogue::AddDistances(const std::string& from_stop, const std::string& to_stop, size_t distance) {
+    void TransportCatalogue::SetDistances(const std::string& from_stop, const std::string& to_stop, size_t distance) {
         auto stop_from = stopname_to_stop_.at(from_stop);
         auto stop_to = stopname_to_stop_.at(to_stop);
         std::pair<Stop*, Stop*> key_ = std::make_pair(stop_from, stop_to);

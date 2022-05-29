@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "geo.h"
+#include "transport_catalogue.h"
 
 namespace data_frame_reader {
 
@@ -30,15 +31,11 @@ namespace data_frame_reader {
     class InputReader {
     public:
 
-        InputReader();
+        InputReader(std::istream& input);
 
         std::vector<StopParserStruct> GetStops();
 
         std::vector<BusParserStruct> GetBuses();
-
-        std::string_view QueryFinder(std::string_view line);
-
-        void AddQuery(std::vector<std::string> &query);
 
     private:
         std::vector<std::string> tmp_stops;
@@ -47,7 +44,7 @@ namespace data_frame_reader {
         std::vector<StopParserStruct> stops_;
         std::vector<BusParserStruct> buses_;
 
-        void ReadTmpData();
+        void ReadTmpData(std::istream& input);
 
         std::string_view SpaceDeleter(std::string_view word);
 
@@ -59,5 +56,6 @@ namespace data_frame_reader {
 
     };
 
+    void AddDataFrame(transport_catalogue::TransportCatalogue& catalogue, std::istream& input);
 
 }

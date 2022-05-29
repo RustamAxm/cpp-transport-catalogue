@@ -2,33 +2,25 @@
 
 #include <vector>
 #include <iostream>
+#include <iomanip>
+
+#include "transport_catalogue.h"
 
 
-namespace reader {
+namespace query_reader {
 
-    struct Query {
-        bool isBus;
-        std::string name_;
-    };
+    void AddQuery(transport_catalogue::TransportCatalogue& catalogue,
+                  std::istream& input,
+                  std::ostream& out);
+    std::string_view QueryFinder(std::string_view line);
 
-    class StatReader {
-    public:
-        StatReader(){
-            AddQuery();
-        }
+}
 
-        std::vector<Query> GetQuery() {
-            return query_;
-        }
+namespace printer {
 
+    void Bus(const transport_catalogue::stat_for_printer::Bus& bus_stat, std::ostream& out);
+    void Stop(const transport_catalogue::stat_for_printer::Stop& stop_stat, std::ostream& out);
 
-    private:
-        std::vector<Query> query_;
-
-        void AddQuery();
-
-        std::string_view QueryFinder(std::string_view line);
-    };
 }
 
 

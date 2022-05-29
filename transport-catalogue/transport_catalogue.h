@@ -86,11 +86,11 @@ namespace transport_catalogue {
     public:
         TransportCatalogue() = default;
 
-        void AddStop(const std::string& stop_name, double latitude, double longitude);
+        void AddStop(Stop stop);
 
         void AddBus(const std::string& bus, const std::vector<std::string>& stops, bool circle);
 
-        void AddDistances(const std::string& from_stop, const std::string& to_stop, size_t distance);
+        void SetDistances(const std::string& from_stop, const std::string& to_stop, size_t distance);
 
         std::pair<int, int> GetStopsStatForBus(const std::string& query);
 
