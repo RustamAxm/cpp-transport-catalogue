@@ -1,9 +1,6 @@
 
 #pragma once
 
-#include <string>
-#include <string_view>
-#include <vector>
 #include <set>
 #include <unordered_map>
 #include <deque>
@@ -13,22 +10,13 @@
 #include <iostream>
 
 #include "geo.h"
+#include "domain.h"
 
 
 
 
 namespace transport_catalogue {
-
-    struct Stop {
-        std::string name_;
-        geo::Coordinates coord_;
-    };
-
-    struct Bus {
-        std::string number_;
-        bool circle;
-        std::vector<Stop*> stop_names_;
-    };
+    using namespace domain;
 
     class StopHasher {
     public:
@@ -38,24 +26,6 @@ namespace transport_catalogue {
         }
     };
 
-    namespace stat_for_printer {
-
-        struct Bus {
-            std::string_view bus_number;
-            bool is_valid;
-            int stops_on_route;
-            int unique_stops;
-            size_t route_lenght;
-            double curvature;
-        };
-
-        struct Stop {
-            std::string_view stop;
-            bool is_valid;
-            bool present_buses;
-            std::set<std::string_view> buses_on_stop;
-        };
-    }
 
     class TransportCatalogue {
     private:

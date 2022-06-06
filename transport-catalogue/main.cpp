@@ -1,9 +1,9 @@
-
 #include "stat_reader.h"
 #include "input_reader.h"
+#include "json_reader.h"
 
+void TestInputReader() {
 
-int main() {
     transport_catalogue::TransportCatalogue catalogue;
 /* В первый раз специально хотел не передавать класс каталога в заполняющие и печатающие модули,
  * поэтому навводил много дополнительных структур.
@@ -16,5 +16,20 @@ int main() {
     data_frame_reader::AddDataFrame(catalogue, input);
     query_reader::AddQuery(catalogue, input, out);
 
-    return 0;
+}
+
+void TestJsonReader() {
+
+    std::istream& input = std::cin;
+    std::ostream& out = std::cout;
+
+    transport_catalogue::TransportCatalogue catalogue;
+    json_reader::JsonReader reader(catalogue);
+
+    reader.AddDataFrame(input);
+
+
+}
+int main() {
+    TestJsonReader();
 }
