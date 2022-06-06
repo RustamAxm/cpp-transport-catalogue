@@ -131,11 +131,16 @@ namespace request {
                         domain::stat_for_printer::Bus tmp;
                         tmp = catalogue_.GetAllBusStat(node.AsMap().at("name").AsString());
                         Dict dict_;
-                        dict_["curvature"] = tmp.curvature;
-                        dict_["request_id"] = id;
-                        dict_["route_length"] = static_cast<int> (tmp.route_lenght);
-                        dict_["stop_count"] = tmp.stops_on_route;
-                        dict_["unique_stop_count"] = tmp.unique_stops;
+                        if (tmp.is_valid) {
+                            dict_["curvature"] = tmp.curvature;
+                            dict_["request_id"] = id;
+                            dict_["route_length"] = static_cast<int> (tmp.route_lenght);
+                            dict_["stop_count"] = tmp.stops_on_route;
+                            dict_["unique_stop_count"] = tmp.unique_stops;
+                        } else {
+                            dict_["request_id"] = id;
+                            dict_["error_message"] = "not found"s;
+                        }
 
                         arr.emplace_back(dict_);
 
@@ -144,12 +149,20 @@ namespace request {
 
                         domain::stat_for_printer::Stop tmp;
                         tmp = catalogue_.GetAllStopStat(node.AsMap().at("name").AsString());
+                        Dict dict_;
+                        if (tmp.is_valid) {
+                            Array vec;
+                            for ( auto x : tmp.buses_on_stop) {
+                                vec.push_back(std::string (x));
+                            }
+                            dict_["buses"] = std::move(vec);
+                            dict_["request_id"] = id;
 
-                        Array vec;
-                        for ( auto x : tmp.buses_on_stop) {
-                            vec.push_back(std::string (x));
+                        } else {
+                            dict_["request_id"] = id;
+                            dict_["error_message"] = "not found"s;
                         }
-                        arr.emplace_back(Dict{ {"buses", std::move(vec)}, {"request_id", id} });
+                        arr.emplace_back(dict_);
 
                     }
                 }
