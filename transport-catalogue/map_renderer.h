@@ -66,7 +66,7 @@ namespace map_renderer {
 
         void SetRoutes(std::map<std::string_view, std::vector<geo::Coordinates>>& bus_to_stops_coord);
 
-        void SetStops(std::map<std::string_view, geo::Coordinates>& stop_to_stop_coord);
+        void SetStops(std::map<std::string_view, geo::Coordinates*>& stop_to_stop_coord);
 
         void SetBusNameToBus(std::map<std::string_view, domain::Bus*>& busname_to_bus);
 
@@ -79,13 +79,17 @@ namespace map_renderer {
                                  svg::Text& background_text,
                                  svg::Text& text);
 
+
+        void StopToStopCoord();
+        void StopsDotRender(sphere_projector::SphereProjector& projector);
+        void StopNamesRender(sphere_projector::SphereProjector& projector);
+
         void Render(std::ostream& out);
 
     private:
         RenderSettings settings_;
         std::map<std::string_view, std::vector<geo::Coordinates>> bus_to_stops_coord_;
-
-        std::map<std::string_view, geo::Coordinates> stop_to_stops_coord_;
+        std::map<std::string_view, geo::Coordinates*> stop_to_stops_coord_;
         std::map<std::string_view, domain::Bus*> busname_to_bus_;
         svg::Document document_;
 
