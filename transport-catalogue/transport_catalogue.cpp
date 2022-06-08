@@ -30,11 +30,11 @@ namespace transport_catalogue {
 
     size_t TransportCatalogue::ComputeAllDistance(const std::vector<Stop*>& container, bool circle) {
         size_t all_distance = 0;
-        for (int i = 0; i < container.size() - 1; ++i) {
+        for (size_t i = 0; i < container.size() - 1; ++i) {
             all_distance += DistanceFinder(container[i]->name_, container[i+1]->name_);
         }
         if (!circle) {
-            for (int i = container.size() - 1; i > 0; --i) {
+            for (size_t i = container.size() - 1; i > 0; --i) {
                 all_distance += DistanceFinder(container[i]->name_,container[i-1]->name_);
             }
         }
@@ -152,5 +152,13 @@ namespace transport_catalogue {
             }
         }
         return stat;
+    }
+
+    std::unordered_map<std::string_view, Stop*> TransportCatalogue::GetStopsForRender() {
+        return stopname_to_stop_;
+    }
+
+    std::unordered_map<std::string_view, Bus*> TransportCatalogue::GetBusesForRender() {
+        return busname_to_bus_;
     }
 }

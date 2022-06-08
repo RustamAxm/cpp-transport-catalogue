@@ -79,6 +79,10 @@ namespace transport_catalogue {
 
         stat_for_printer::Stop GetAllStopStat(const std::string& query);
 
+// for map renderer
+        std::unordered_map<std::string_view, Stop*> GetStopsForRender();
+        std::unordered_map<std::string_view, Bus*> GetBusesForRender();
+
         ~TransportCatalogue() = default;
     };
 
