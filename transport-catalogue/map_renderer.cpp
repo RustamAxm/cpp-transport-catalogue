@@ -78,25 +78,17 @@ namespace map_renderer {
         settings_ = set;
     }
 
-    void MapRenderer::SetRoutes(std::map<std::string_view, std::vector<geo::Coordinates>>& bus_to_stops_coord) {
-        bus_to_stops_coord_ = bus_to_stops_coord;
-    }
-
-    void MapRenderer::SetStops(std::map<std::string_view, geo::Coordinates*>& stop_to_stop_coord) {
-        stop_to_stops_coord_ = stop_to_stop_coord;
-    }
-
     void MapRenderer::SetBusNameToBus(std::map<std::string_view, domain::Bus*>& busname_to_bus) {
         busname_to_bus_ = busname_to_bus;
     }
 
-    void MapRenderer::BusRouteRender(sphere_projector::SphereProjector& projector) {
+    void MapRenderer::BusRouteRender(const sphere_projector::SphereProjector& projector) {
         int color_index = 0;
         for (const auto &x: busname_to_bus_) {
             if (!x.second->stop_names_.empty()) {
                 svg::Polyline line;
                 if (x.second->circle) {
-                    for (auto& stop : x.second->stop_names_) {
+                    for (auto &stop: x.second->stop_names_) {
                         line.AddPoint(projector(stop->coord_));
                     }
                 } else {
@@ -104,7 +96,7 @@ namespace map_renderer {
                         line.AddPoint(projector(x.second->stop_names_[i]->coord_));
                     }
                     for (size_t i = x.second->stop_names_.size() - 1; i > 0; --i) {
-                        line.AddPoint(projector(x.second->stop_names_[i-1]->coord_));
+                        line.AddPoint(projector(x.second->stop_names_[i - 1]->coord_));
                     }
                 }
 
@@ -115,19 +107,19 @@ namespace map_renderer {
                 line.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
                 color_index++;
                 document_.Add(line);
-            }
 
+            }
         }
     }
 
     void MapRenderer::BusNumberTextRender(const std::string& name, geo::Coordinates& coord,
                                           int& color_index,
-                                          sphere_projector::SphereProjector& projector,
+                                          const sphere_projector::SphereProjector& projector,
                                           svg::Text& background_text,
                                           svg::Text& text) {
 
         background_text.SetFontFamily("Verdana"s)
-                .SetOffset({ settings_.bus_label_offset[0], settings_.bus_label_offset[1] })
+                .SetOffset({ settings_.bus_label_offset[0], settings_.bus_label_offset[1]})
                 .SetFontSize(settings_.bus_label_font_size)
                 .SetFontWeight("bold"s)
                 .SetStrokeColor(settings_.underlayer_color)
@@ -137,42 +129,45 @@ namespace map_renderer {
                 .SetStrokeLineJoin(svg::StrokeLineJoin::ROUND)
                 .SetData(std::string(name))
                 .SetPosition(projector(coord));
-        document_.Add(background_text);
+        document_.Add(std::move(background_text));
         text.SetFontFamily("Verdana"s)
-                .SetOffset({ settings_.bus_label_offset[0], settings_.bus_label_offset[1] })
+                .SetOffset({ settings_.bus_label_offset[0], settings_.bus_label_offset[1]})
                 .SetFontSize(settings_.bus_label_font_size)
                 .SetFontWeight("bold"s)
                 .SetFillColor(settings_.color_palette[color_index % settings_.color_palette.size()])
                 .SetData(name)
                 .SetPosition(projector(coord));
-        document_.Add(text);
+        document_.Add(std::move(text));
     }
 
-    void MapRenderer::BusNumberRender(sphere_projector::SphereProjector& projector) {
+    void MapRenderer::BusNumberRender(const sphere_projector::SphereProjector& projector) {
         int color_index = 0;
+        svg::Text background_text, text;
         for (const auto &x: busname_to_bus_) {
-            if (x.second->circle) {
-                svg::Text background_text, text;
+            if (!x.second->stop_names_.empty()) {
+                if (x.second->circle) {
 
-                BusNumberTextRender(std::string(x.first),
-                                    x.second->stop_names_.front()->coord_,
-                                    color_index,
-                                    projector, background_text, text);
-                ++color_index;
-            } else {
-                svg::Text background_text, text;
 
-                BusNumberTextRender(std::string(x.first),
-                                    x.second->stop_names_.front()->coord_,
-                                    color_index,
-                                    projector, background_text, text);
-                BusNumberTextRender(std::string(x.first),
-                                    x.second->stop_names_.back()->coord_,
-                                    color_index,
-                                    projector, background_text, text);
-                ++color_index;
+                    BusNumberTextRender(std::string(x.first),
+                                        x.second->stop_names_.front()->coord_,
+                                        color_index,
+                                        projector, background_text, text);
+                    ++color_index;
+                } else {
+
+                    BusNumberTextRender(std::string(x.first),
+                                        x.second->stop_names_.front()->coord_,
+                                        color_index,
+                                        projector, background_text, text);
+                    if (x.second->stop_names_.front()->name_ != x.second->stop_names_.back()->name_) {
+                        BusNumberTextRender(std::string(x.first),
+                                            x.second->stop_names_.back()->coord_,
+                                            color_index,
+                                            projector, background_text, text);
+                    }
+                    ++color_index;
+                }
             }
-
         }
     }
 
@@ -184,21 +179,21 @@ namespace map_renderer {
         }
     }
 
-    void MapRenderer::StopsDotRender(sphere_projector::SphereProjector& projector) {
+    void MapRenderer::StopsDotRender(const sphere_projector::SphereProjector& projector) {
 
         for (const auto& x : stop_to_stops_coord_) {
             svg::Circle circle;
             circle.SetRadius(settings_.stop_radius)
                     .SetCenter(projector(*x.second))
                     .SetFillColor("white");
-            document_.Add(circle);
+            document_.Add(std::move(circle));
         }
     }
 
-    void MapRenderer::StopNamesRender(sphere_projector::SphereProjector& projector) {
-        svg::Text background_text, text;
-        for (const auto& stop : stop_to_stops_coord_) {
+    void MapRenderer::StopNamesRender(const sphere_projector::SphereProjector& projector) {
 
+        for (const auto& stop : stop_to_stops_coord_) {
+            svg::Text background_text, text;
             background_text.SetFontFamily("Verdana"s)
                     .SetOffset({ settings_.stop_label_offset[0], settings_.stop_label_offset[1] })
                     .SetFontSize(settings_.stop_label_font_size)
@@ -209,7 +204,7 @@ namespace map_renderer {
                     .SetStrokeLineJoin(svg::StrokeLineJoin::ROUND)
                     .SetData(std::string (stop.first))
                     .SetPosition(projector(*stop.second));
-            document_.Add(background_text);
+            document_.Add(std::move(background_text));
 
             text.SetFontFamily("Verdana"s)
                     .SetOffset({ settings_.stop_label_offset[0], settings_.stop_label_offset[1] })
@@ -217,7 +212,7 @@ namespace map_renderer {
                     .SetFillColor("black")
                     .SetData(std::string(stop.first))
                     .SetPosition(projector(*stop.second));
-            document_.Add(text);
+            document_.Add(std::move(text));
         }
     }
 

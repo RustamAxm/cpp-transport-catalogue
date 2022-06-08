@@ -25,6 +25,7 @@ namespace json_reader {
         }
     }
 
+
     void JsonReader::AddToCatalogue() {
 
         for (const auto& stop : req_stops_) {
@@ -126,6 +127,11 @@ namespace json_reader {
         arr.emplace_back(dict_);
     }
 
+    void JsonReader::MapArrayFiller(const Dict& node_map) {
+        auto id = node_map.at("id").AsInt();
+
+    }
+
     void JsonReader::StatFiller(const Array& array) {
         for (const auto& node : array) {
             if (node.AsMap().count("type")) {
@@ -133,6 +139,8 @@ namespace json_reader {
                     BusArrayFiller(node.AsMap());
                 } else if (node.AsMap().at("type").AsString() == "Stop") {
                     StopArrayFiller(node.AsMap());
+                } else if (node.AsMap().at("type").AsString() == "Map") {
+                    MapArrayFiller(node.AsMap());
                 }
             }
         }

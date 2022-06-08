@@ -19,13 +19,4 @@ namespace request_handler {
         renderer_.SetBusNameToBus(busname_to_bus);
     }
 
-
-    void RequestHandler::SetStopsForRender() const {
-        std::map<std::string_view, geo::Coordinates*> stop_to_stops_coord;
-        for (const auto& x : db_.GetStopsForRender()) {
-            stop_to_stops_coord[x.first] = &x.second->coord_;
-        }
-        renderer_.SetStops(stop_to_stops_coord);
-    }
-
 }

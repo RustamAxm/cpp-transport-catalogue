@@ -63,6 +63,8 @@ namespace request {
 
         void StopArrayFiller(const Dict& node_map);
 
+        void MapArrayFiller(const Dict& node_map);
+
         void StatFiller(const Array& array);
 
         svg::Color ColorMatcher(const json::Node& node);

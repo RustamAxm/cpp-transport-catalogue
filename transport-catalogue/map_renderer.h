@@ -20,6 +20,7 @@ namespace map_renderer {
 
     namespace sphere_projector {
 
+
         inline const double EPSILON = 1e-6;
         bool IsZero(double value) ;
 
@@ -64,31 +65,26 @@ namespace map_renderer {
 
         void SetSettings (RenderSettings& set);
 
-        void SetRoutes(std::map<std::string_view, std::vector<geo::Coordinates>>& bus_to_stops_coord);
-
-        void SetStops(std::map<std::string_view, geo::Coordinates*>& stop_to_stop_coord);
-
         void SetBusNameToBus(std::map<std::string_view, domain::Bus*>& busname_to_bus);
 
-        void BusRouteRender(sphere_projector::SphereProjector& projector);
+        void BusRouteRender(const sphere_projector::SphereProjector& projector);
 
-        void BusNumberRender(sphere_projector::SphereProjector& projector);
+        void BusNumberRender(const sphere_projector::SphereProjector& projector);
         void BusNumberTextRender(const std::string& name, geo::Coordinates& coord,
                                  int& color_index,
-                                 sphere_projector::SphereProjector& projector,
+                                 const sphere_projector::SphereProjector& projector,
                                  svg::Text& background_text,
                                  svg::Text& text);
 
 
         void StopToStopCoord();
-        void StopsDotRender(sphere_projector::SphereProjector& projector);
-        void StopNamesRender(sphere_projector::SphereProjector& projector);
+        void StopsDotRender(const sphere_projector::SphereProjector& projector);
+        void StopNamesRender(const sphere_projector::SphereProjector& projector);
 
         void Render(std::ostream& out);
 
     private:
         RenderSettings settings_;
-        std::map<std::string_view, std::vector<geo::Coordinates>> bus_to_stops_coord_;
         std::map<std::string_view, geo::Coordinates*> stop_to_stops_coord_;
         std::map<std::string_view, domain::Bus*> busname_to_bus_;
         svg::Document document_;
