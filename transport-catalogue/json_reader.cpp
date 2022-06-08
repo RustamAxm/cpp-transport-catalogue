@@ -1,14 +1,9 @@
 #include "json_reader.h"
 
-/*
- * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
- * а также код обработки запросов к базе и формирование массива ответов в формате JSON
- */
-
 namespace json_reader {
 
-    JsonReader::JsonReader(TransportCatalogue& tc, MapRenderer& renderer) :
-    catalogue_(tc), renderer_(renderer) {}
+    JsonReader::JsonReader(TransportCatalogue& tc, MapRenderer& renderer, Request& request) :
+    catalogue_(tc), renderer_(renderer), request_(request) {}
 
 
     void JsonReader::AddDataFrame(std::istream& input) {
@@ -129,7 +124,14 @@ namespace json_reader {
 
     void JsonReader::MapArrayFiller(const Dict& node_map) {
         auto id = node_map.at("id").AsInt();
+        Dict dict_;
+        dict_["request_id"] = id;
+        std::ostringstream buffer;
+        request_.SetRoutesForRender();
+        renderer_.Render(buffer);
+        dict_["map"] = buffer.str();
 
+        arr.emplace_back(dict_);
     }
 
     void JsonReader::StatFiller(const Array& array) {

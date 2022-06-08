@@ -1,18 +1,18 @@
 #pragma once
 
-/*
- * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
- * а также код обработки запросов к базе и формирование массива ответов в формате JSON
- */
+#include <sstream>
+
 #include "json.h"
 #include "transport_catalogue.h"
 #include "map_renderer.h"
+#include "request_handler.h"
 
 namespace json_reader {
 
     using namespace json;
     using TransportCatalogue = transport_catalogue::TransportCatalogue;
     using MapRenderer = map_renderer::MapRenderer;
+    using Request = request_handler::RequestHandler;
 
 namespace request {
 
@@ -34,7 +34,7 @@ namespace request {
 
     class JsonReader {
     public:
-        JsonReader(TransportCatalogue& tc, MapRenderer& renderer);
+        JsonReader(TransportCatalogue& tc, MapRenderer& renderer, Request& request);
 
         void AddDataFrame(std::istream& input);
 
@@ -44,14 +44,14 @@ namespace request {
 
     private:
         TransportCatalogue& catalogue_;
+        MapRenderer& renderer_;
+        Request& request_;
+
         Document document_;
         Array arr;
 
-        MapRenderer& renderer_;
-
         std::vector<request::Stop> req_stops_;
         std::vector<request::Bus> req_buses_;
-
 
         request::Stop AddStop(const Dict& dict);
 
