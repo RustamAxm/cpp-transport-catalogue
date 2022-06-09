@@ -69,15 +69,15 @@ namespace map_renderer {
 
 
 
-    void MapRenderer::SetSettings (RenderSettings& set) {
-        settings_ = set;
+    void MapRenderer::SetSettings (RenderSettings& settings) {
+        settings_ = settings;
     }
 
     void MapRenderer::SetBusNameToBus(std::map<std::string_view, domain::Bus*>& busname_to_bus) {
         busname_to_bus_ = busname_to_bus;
     }
 
-    void MapRenderer::BusRouteRender(const sphere_projector::SphereProjector& projector) {
+    void MapRenderer::RenderBusRoute(const sphere_projector::SphereProjector& projector) {
         int color_index = 0;
         for (const auto &x: busname_to_bus_) {
             if (!x.second->stop_names_.empty()) {
@@ -107,7 +107,7 @@ namespace map_renderer {
         }
     }
 
-    void MapRenderer::BusNumberTextRender(const std::string& name, geo::Coordinates& coord,
+    void MapRenderer::RenderBusNumberText(const std::string& name, geo::Coordinates& coord,
                                           int& color_index,
                                           const sphere_projector::SphereProjector& projector,
                                           svg::Text& background_text,
@@ -135,7 +135,7 @@ namespace map_renderer {
         document_.Add(std::move(text));
     }
 
-    void MapRenderer::BusNumberRender(const sphere_projector::SphereProjector& projector) {
+    void MapRenderer::RenderBusNumber(const sphere_projector::SphereProjector& projector) {
         int color_index = 0;
         svg::Text background_text, text;
         for (const auto &x: busname_to_bus_) {
@@ -143,19 +143,19 @@ namespace map_renderer {
                 if (x.second->circle) {
 
 
-                    BusNumberTextRender(std::string(x.first),
+                    RenderBusNumberText(std::string(x.first),
                                         x.second->stop_names_.front()->coord_,
                                         color_index,
                                         projector, background_text, text);
                     ++color_index;
                 } else {
 
-                    BusNumberTextRender(std::string(x.first),
+                    RenderBusNumberText(std::string(x.first),
                                         x.second->stop_names_.front()->coord_,
                                         color_index,
                                         projector, background_text, text);
                     if (x.second->stop_names_.front()->name_ != x.second->stop_names_.back()->name_) {
-                        BusNumberTextRender(std::string(x.first),
+                        RenderBusNumberText(std::string(x.first),
                                             x.second->stop_names_.back()->coord_,
                                             color_index,
                                             projector, background_text, text);
@@ -174,7 +174,7 @@ namespace map_renderer {
         }
     }
 
-    void MapRenderer::StopsDotRender(const sphere_projector::SphereProjector& projector) {
+    void MapRenderer::RenderStopsDot(const sphere_projector::SphereProjector& projector) {
 
         for (const auto& x : stop_to_stops_coord_) {
             svg::Circle circle;
@@ -185,7 +185,7 @@ namespace map_renderer {
         }
     }
 
-    void MapRenderer::StopNamesRender(const sphere_projector::SphereProjector& projector) {
+    void MapRenderer::RenderStopNames(const sphere_projector::SphereProjector& projector) {
 
         for (const auto& stop : stop_to_stops_coord_) {
             svg::Text background_text, text;
@@ -229,12 +229,12 @@ namespace map_renderer {
                                                     settings_.height,
                                                     settings_.padding);
 
-        BusRouteRender(projector);
-        BusNumberRender(projector);
+        RenderBusRoute(projector);
+        RenderBusNumber(projector);
 
         StopToStopCoord();
-        StopsDotRender(projector);
-        StopNamesRender(projector);
+        RenderStopsDot(projector);
+        RenderStopNames(projector);
 
         document_.Render(out);
     }

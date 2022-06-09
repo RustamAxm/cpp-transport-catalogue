@@ -67,10 +67,10 @@ namespace map_renderer {
 
         void SetBusNameToBus(std::map<std::string_view, domain::Bus*>& busname_to_bus);
 
-        void BusRouteRender(const sphere_projector::SphereProjector& projector);
+        void RenderBusRoute(const sphere_projector::SphereProjector& projector);
 
-        void BusNumberRender(const sphere_projector::SphereProjector& projector);
-        void BusNumberTextRender(const std::string& name, geo::Coordinates& coord,
+        void RenderBusNumber(const sphere_projector::SphereProjector& projector);
+        void RenderBusNumberText(const std::string& name, geo::Coordinates& coord,
                                  int& color_index,
                                  const sphere_projector::SphereProjector& projector,
                                  svg::Text& background_text,
@@ -78,8 +78,8 @@ namespace map_renderer {
 
 
         void StopToStopCoord();
-        void StopsDotRender(const sphere_projector::SphereProjector& projector);
-        void StopNamesRender(const sphere_projector::SphereProjector& projector);
+        void RenderStopsDot(const sphere_projector::SphereProjector& projector);
+        void RenderStopNames(const sphere_projector::SphereProjector& projector);
 
         void Render(std::ostream& out);
 
