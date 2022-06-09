@@ -20,41 +20,34 @@ public:
     using runtime_error::runtime_error;
 };
 
-class Node {
-public:
+    class Node : private std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string> {
+    public:
+        using variant::variant;
+        using Value = variant;
 
-    using Value = std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>;
-   /* Реализуйте Node, используя std::variant */
-    Node() = default;
-    Node(int value);
-    Node(double value);
-    Node(std::string value);
-    Node(bool value);
-    Node(Array array);
-    Node(Dict map);
-    Node(std::nullptr_t);
+        Node(json::Node::Value& value) {
+           this->swap(value);
+        }
 
-    bool IsInt() const;
-    bool IsDouble() const;
-    bool IsPureDouble() const;
-    bool IsBool() const;
-    bool IsString() const;
-    bool IsNull() const;
-    bool IsArray() const;
-    bool IsMap() const;
+        bool IsInt() const;
+        bool IsDouble() const;
+        bool IsPureDouble() const;
+        bool IsBool() const;
+        bool IsString() const;
+        bool IsNull() const;
+        bool IsArray() const;
+        bool IsMap() const;
 
-    int AsInt() const;
-    bool AsBool() const;
-    double AsDouble() const;
-    const std::string& AsString() const;
-    const Array& AsArray() const;
-    const Dict& AsMap() const;
+        int AsInt() const;
+        bool AsBool() const;
+        double AsDouble() const;
+        const std::string& AsString() const;
+        const Array& AsArray() const;
+        const Dict& AsMap() const;
 
-    const Value& GetValue() const;
+        const Value& GetValue() const;
 
-private:
-    Value value_;
-};
+    };
 
     bool operator==(const Node& left, const Node& right);
     bool operator!=(const Node& left, const Node& right);

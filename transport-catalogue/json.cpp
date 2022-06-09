@@ -226,88 +226,81 @@ namespace {
 }  // namespace
 
 // constructor functions
-Node::Node(int value) : value_(value) {}
-Node::Node(double value) : value_(value) {}
-Node::Node(std::string value) : value_(value) {}
-Node::Node(bool value) : value_(value){}
-Node::Node(Array array) : value_(std::move(array)) {}
-Node::Node(Dict map) : value_(std::move(map)) {}
-Node::Node(std::nullptr_t) : Node() {}
 
 // bool functions
 bool Node::IsInt() const {
-    return std::holds_alternative<int>(value_);
+    return std::holds_alternative<int>(*this);
 }
 bool Node::IsDouble() const {
-    return std::holds_alternative<double>(value_) || IsInt();
+    return std::holds_alternative<double>(*this) || IsInt();
 }
 bool Node::IsPureDouble() const {
-    return std::holds_alternative<double>(value_);
+    return std::holds_alternative<double>(*this);
 }
 bool Node::IsBool() const {
-    return std::holds_alternative<bool>(value_);
+    return std::holds_alternative<bool>(*this);
 }
 bool Node::IsString() const {
-    return std::holds_alternative<std::string>(value_);
+    return std::holds_alternative<std::string>(*this);
 }
 bool Node::IsNull() const {
-    return std::holds_alternative<std::nullptr_t>(value_);
+    return std::holds_alternative<std::nullptr_t>(*this);
 }
 bool Node::IsArray() const {
-    return std::holds_alternative<Array>(value_);
+    return std::holds_alternative<Array>(*this);
 }
 bool Node::IsMap() const {
-    return std::holds_alternative<Dict>(value_);
+    return std::holds_alternative<Dict>(*this);
 }
 
 // get functions
 int Node::AsInt() const {
     if (IsInt()) {
-        return get<int> (value_);
+        return get<int> (*this);
     } else {
         throw std::logic_error("cannot access to int type value");
     }
 }
 bool Node::AsBool() const {
     if (IsBool()) {
-        return get<bool> (value_);
+        return get<bool> (*this);
     } else {
         throw std::logic_error("cannot access to bool type value");
     }
 }
 double Node::AsDouble() const {
     if (IsPureDouble()) {
-        return get<double> (value_);
+        return get<double> (*this);
     } else if (IsDouble()) {
-        return get<int> (value_);
+        return get<int> (*this);
     } else {
         throw std::logic_error("cannot access to double type value");
     }
 }
 const std::string& Node::AsString() const {
     if (IsString()) {
-        return get<std::string> (value_);
+        return get<std::string> (*this);
     } else {
         throw std::logic_error("cannot access to string type value");
     }
 }
 const Array& Node::AsArray() const {
     if (IsArray()) {
-        return get<Array> (value_);
+        return get<Array> (*this);
     } else {
         throw std::logic_error("cannot access to array type value");
     }
 }
 const Dict& Node::AsMap() const {
     if (IsMap()) {
-        return get<Dict> (value_);
+        return get<Dict> (*this);
     } else {
         throw std::logic_error("cannot access to dictionary type value");
     }
 
 }
 const Node::Value& Node::GetValue() const {
-    return value_;
+    return *this;
 }
 
 bool operator==(const Node& left, const Node& right) {
