@@ -79,19 +79,19 @@ namespace map_renderer {
 
     void MapRenderer::RenderBusRoute(const sphere_projector::SphereProjector& projector) {
         int color_index = 0;
-        for (const auto &x: busname_to_bus_) {
-            if (!x.second->stop_names_.empty()) {
+        for (const auto& [busname, bus_ptr]: busname_to_bus_) {
+            if (!bus_ptr->stop_names_.empty()) {
                 svg::Polyline line;
-                if (x.second->circle) {
-                    for (auto &stop: x.second->stop_names_) {
+                if (bus_ptr->circle) {
+                    for (auto &stop: bus_ptr->stop_names_) {
                         line.AddPoint(projector(stop->coord_));
                     }
                 } else {
-                    for (size_t i = 0; i < x.second->stop_names_.size(); ++i) {
-                        line.AddPoint(projector(x.second->stop_names_[i]->coord_));
+                    for (size_t i = 0; i < bus_ptr->stop_names_.size(); ++i) {
+                        line.AddPoint(projector(bus_ptr->stop_names_[i]->coord_));
                     }
-                    for (size_t i = x.second->stop_names_.size() - 1; i > 0; --i) {
-                        line.AddPoint(projector(x.second->stop_names_[i - 1]->coord_));
+                    for (size_t i = bus_ptr->stop_names_.size() - 1; i > 0; --i) {
+                        line.AddPoint(projector(bus_ptr->stop_names_[i - 1]->coord_));
                     }
                 }
 
@@ -138,25 +138,25 @@ namespace map_renderer {
     void MapRenderer::RenderBusNumber(const sphere_projector::SphereProjector& projector) {
         int color_index = 0;
         svg::Text background_text, text;
-        for (const auto &x: busname_to_bus_) {
-            if (!x.second->stop_names_.empty()) {
-                if (x.second->circle) {
+        for (const auto & [busname, bus_ptr]: busname_to_bus_) {
+            if (!bus_ptr->stop_names_.empty()) {
+                if (bus_ptr->circle) {
 
 
-                    RenderBusNumberText(std::string(x.first),
-                                        x.second->stop_names_.front()->coord_,
+                    RenderBusNumberText(std::string(busname),
+                                        bus_ptr->stop_names_.front()->coord_,
                                         color_index,
                                         projector, background_text, text);
                     ++color_index;
                 } else {
 
-                    RenderBusNumberText(std::string(x.first),
-                                        x.second->stop_names_.front()->coord_,
+                    RenderBusNumberText(std::string(busname),
+                                        bus_ptr->stop_names_.front()->coord_,
                                         color_index,
                                         projector, background_text, text);
-                    if (x.second->stop_names_.front()->name_ != x.second->stop_names_.back()->name_) {
-                        RenderBusNumberText(std::string(x.first),
-                                            x.second->stop_names_.back()->coord_,
+                    if (bus_ptr->stop_names_.front()->name_ != bus_ptr->stop_names_.back()->name_) {
+                        RenderBusNumberText(std::string(busname),
+                                            bus_ptr->stop_names_.back()->coord_,
                                             color_index,
                                             projector, background_text, text);
                     }
@@ -167,8 +167,8 @@ namespace map_renderer {
     }
 
     void MapRenderer::StopToStopCoord() {
-        for (const auto& x : busname_to_bus_) {
-            for (const auto& stop : x.second->stop_names_) {
+        for (const auto& [busname, bus_ptr] : busname_to_bus_) {
+            for (const auto& stop : bus_ptr->stop_names_) {
                 stop_to_stops_coord_[stop->name_] = &stop->coord_;
             }
         }
@@ -176,10 +176,10 @@ namespace map_renderer {
 
     void MapRenderer::RenderStopsDot(const sphere_projector::SphereProjector& projector) {
 
-        for (const auto& x : stop_to_stops_coord_) {
+        for (const auto& [stop, stop_coord] : stop_to_stops_coord_) {
             svg::Circle circle;
             circle.SetRadius(settings_.stop_radius)
-                    .SetCenter(projector(*x.second))
+                    .SetCenter(projector(*stop_coord))
                     .SetFillColor("white");
             document_.Add(std::move(circle));
         }
@@ -187,7 +187,7 @@ namespace map_renderer {
 
     void MapRenderer::RenderStopNames(const sphere_projector::SphereProjector& projector) {
 
-        for (const auto& stop : stop_to_stops_coord_) {
+        for (const auto& [stop, stop_coord] : stop_to_stops_coord_) {
             svg::Text background_text, text;
             background_text.SetFontFamily("Verdana"s)
                     .SetOffset({ settings_.stop_label_offset[0], settings_.stop_label_offset[1] })
@@ -197,16 +197,16 @@ namespace map_renderer {
                     .SetStrokeLineCap(svg::StrokeLineCap::ROUND)
                     .SetStrokeWidth(settings_.underlayer_width)
                     .SetStrokeLineJoin(svg::StrokeLineJoin::ROUND)
-                    .SetData(std::string (stop.first))
-                    .SetPosition(projector(*stop.second));
+                    .SetData(std::string (stop))
+                    .SetPosition(projector(*stop_coord));
             document_.Add(std::move(background_text));
 
             text.SetFontFamily("Verdana"s)
                     .SetOffset({ settings_.stop_label_offset[0], settings_.stop_label_offset[1] })
                     .SetFontSize(settings_.stop_label_font_size)
                     .SetFillColor("black")
-                    .SetData(std::string(stop.first))
-                    .SetPosition(projector(*stop.second));
+                    .SetData(std::string(stop))
+                    .SetPosition(projector(*stop_coord));
             document_.Add(std::move(text));
         }
     }
@@ -215,9 +215,9 @@ namespace map_renderer {
 
     void MapRenderer::Render(std::ostream& out) {
         std::vector<geo::Coordinates> coord;
-        for (const auto& x : busname_to_bus_) {
-            if (!x.second->stop_names_.empty()) {
-                for (const auto& stop : x.second->stop_names_) {
+        for (const auto& [busname, bus_ptr] : busname_to_bus_) {
+            if (!bus_ptr->stop_names_.empty()) {
+                for (const auto& stop : bus_ptr->stop_names_) {
                     coord.push_back(stop->coord_);
                 }
             }
