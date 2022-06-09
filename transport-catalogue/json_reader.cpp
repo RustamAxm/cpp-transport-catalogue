@@ -10,18 +10,18 @@ namespace json_reader {
         document_ = json::Load(input);
         for (const auto& node : document_.GetRoot().AsMap()) {
             if (node.first == "base_requests") {
-                BaseFiller(node.second.AsArray());
-                AddToCatalogue();
+                FillBase(node.second.AsArray());
+                FillCatalogue();
             } else if (node.first == "stat_requests") {
-                StatFiller(node.second.AsArray());
+                FillStat(node.second.AsArray());
             } else if (node.first == "render_settings") {
-                RenderFiller(node.second.AsMap());
+                FillRenderSettings(node.second.AsMap());
             }
         }
     }
 
 
-    void JsonReader::AddToCatalogue() {
+    void JsonReader::FillCatalogue() {
 
         for (const auto& stop : req_stops_) {
             catalogue_.AddStop({stop.name, stop.latitude, stop.longitude});
@@ -45,30 +45,30 @@ namespace json_reader {
 
 
     request::Stop JsonReader::AddStop(const Dict& dict) {
-        request::Stop tmp;
-        tmp.name = dict.at("name").AsString();
-        tmp.latitude = dict.at("latitude").AsDouble();
-        tmp.longitude = dict.at("longitude").AsDouble();
+        request::Stop stop;
+        stop.name = dict.at("name").AsString();
+        stop.latitude = dict.at("latitude").AsDouble();
+        stop.longitude = dict.at("longitude").AsDouble();
 
         if (dict.count("road_distances")) {
             for (const auto& x : dict.at("road_distances").AsMap()) {
-                tmp.road_distances[x.first] = x.second.AsInt();
+                stop.road_distances[x.first] = x.second.AsInt();
             }
         }
-        return tmp;
+        return stop;
     }
 
     request::Bus JsonReader::AddBus(const Dict& dict) {
-        request::Bus tmp;
-        tmp.name = dict.at("name").AsString();
-        tmp.is_roundtrip = dict.at("is_roundtrip").AsBool();
+        request::Bus bus;
+        bus.name = dict.at("name").AsString();
+        bus.is_roundtrip = dict.at("is_roundtrip").AsBool();
         for (const auto& x : dict.at("stops").AsArray()) {
-            tmp.stops.push_back(x.AsString());
+            bus.stops.push_back(x.AsString());
         }
-        return tmp;
+        return bus;
     }
 
-    void JsonReader::BaseFiller(const Array& array) {
+    void JsonReader::FillBase(const Array& array) {
 
         for(const auto& node : array) {
             if (node.AsMap().count("type")) {
@@ -81,18 +81,18 @@ namespace json_reader {
         }
     }
 
-    void JsonReader::BusArrayFiller(const Dict& node_map) {
+    void JsonReader::FillBusArray(const Dict& node_map) {
         auto id = node_map.at("id").AsInt();
 
-        domain::stat_for_printer::Bus tmp;
-        tmp = catalogue_.GetAllBusStat(node_map.at("name").AsString());
+        domain::stat_for_printer::Bus bus_stat;
+        bus_stat = catalogue_.GetAllBusStat(node_map.at("name").AsString());
         Dict dict_;
-        if (tmp.is_valid) {
-            dict_["curvature"] = tmp.curvature;
+        if (bus_stat.is_valid) {
+            dict_["curvature"] = bus_stat.curvature;
             dict_["request_id"] = id;
-            dict_["route_length"] = static_cast<int> (tmp.route_lenght);
-            dict_["stop_count"] = tmp.stops_on_route;
-            dict_["unique_stop_count"] = tmp.unique_stops;
+            dict_["route_length"] = static_cast<int> (bus_stat.route_lenght);
+            dict_["stop_count"] = bus_stat.stops_on_route;
+            dict_["unique_stop_count"] = bus_stat.unique_stops;
         } else {
             dict_["request_id"] = id;
             dict_["error_message"] = "not found"s;
@@ -101,15 +101,14 @@ namespace json_reader {
         arr.emplace_back(dict_);
     }
 
-    void JsonReader::StopArrayFiller(const Dict& node_map) {
+    void JsonReader::FillStopArray(const Dict& node_map) {
         auto id = node_map.at("id").AsInt();
 
-        domain::stat_for_printer::Stop tmp;
-        tmp = catalogue_.GetAllStopStat(node_map.at("name").AsString());
+        domain::stat_for_printer::Stop stop_stat = catalogue_.GetAllStopStat(node_map.at("name").AsString());
         Dict dict_;
-        if (tmp.is_valid) {
+        if (stop_stat.is_valid) {
             Array vec;
-            for ( auto x : tmp.buses_on_stop) {
+            for ( auto x : stop_stat.buses_on_stop) {
                 vec.push_back(std::string (x));
             }
             dict_["buses"] = std::move(vec);
@@ -122,7 +121,7 @@ namespace json_reader {
         arr.emplace_back(dict_);
     }
 
-    void JsonReader::MapArrayFiller(const Dict& node_map) {
+    void JsonReader::FillMapArray(const Dict& node_map) {
         auto id = node_map.at("id").AsInt();
         Dict dict_;
         dict_["request_id"] = id;
@@ -134,21 +133,21 @@ namespace json_reader {
         arr.emplace_back(dict_);
     }
 
-    void JsonReader::StatFiller(const Array& array) {
+    void JsonReader::FillStat(const Array& array) {
         for (const auto& node : array) {
             if (node.AsMap().count("type")) {
                 if (node.AsMap().at("type").AsString() == "Bus") {
-                    BusArrayFiller(node.AsMap());
+                    FillBusArray(node.AsMap());
                 } else if (node.AsMap().at("type").AsString() == "Stop") {
-                    StopArrayFiller(node.AsMap());
+                    FillStopArray(node.AsMap());
                 } else if (node.AsMap().at("type").AsString() == "Map") {
-                    MapArrayFiller(node.AsMap());
+                    FillMapArray(node.AsMap());
                 }
             }
         }
     }
 
-    svg::Color JsonReader::ColorMatcher(const json::Node& node) {
+    svg::Color JsonReader::ChooseColor(const json::Node& node) {
         if (node.IsArray()) {
             if (node.AsArray().size() == 3) {
                 svg::Rgb rgb;
@@ -169,7 +168,7 @@ namespace json_reader {
         }
     }
 
-    void JsonReader::RenderFiller(const Dict& dict) {
+    void JsonReader::FillRenderSettings(const Dict& dict) {
         map_renderer::RenderSettings rend;
         rend.width = dict.at("width").AsDouble();
         rend.height = dict.at("height").AsDouble();
@@ -182,10 +181,10 @@ namespace json_reader {
         rend.stop_label_font_size = dict.at("stop_label_font_size").AsInt();
         rend.stop_label_offset[0] = dict.at("stop_label_offset").AsArray()[0].AsDouble();
         rend.stop_label_offset[1] = dict.at("stop_label_offset").AsArray()[1].AsDouble();
-        rend.underlayer_color = ColorMatcher(dict.at("underlayer_color"));
+        rend.underlayer_color = ChooseColor(dict.at("underlayer_color"));
         rend.underlayer_width = dict.at("underlayer_width").AsDouble();
         for (const auto& node : dict.at("color_palette").AsArray()) {
-            rend.color_palette.push_back(ColorMatcher(node));
+            rend.color_palette.push_back(ChooseColor(node));
         }
         renderer_.SetSettings(rend);
     }

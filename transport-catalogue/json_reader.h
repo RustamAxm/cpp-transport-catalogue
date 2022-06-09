@@ -31,14 +31,13 @@ namespace request {
 
 }
 
-
     class JsonReader {
     public:
         JsonReader(TransportCatalogue& tc, MapRenderer& renderer, Request& request);
 
         void AddDataFrame(std::istream& input);
 
-        void AddToCatalogue();
+        void FillCatalogue();
 
         void DocumentPrinter(std::ostream& out);
 
@@ -57,18 +56,18 @@ namespace request {
 
         request::Bus AddBus(const Dict& dict);
 
-        void BaseFiller(const Array& array);
+        void FillBase(const Array& array);
 
-        void BusArrayFiller(const Dict& node_map);
+        void FillBusArray(const Dict& node_map);
 
-        void StopArrayFiller(const Dict& node_map);
+        void FillStopArray(const Dict& node_map);
 
-        void MapArrayFiller(const Dict& node_map);
+        void FillMapArray(const Dict& node_map);
 
-        void StatFiller(const Array& array);
+        void FillStat(const Array& array);
 
-        svg::Color ColorMatcher(const json::Node& node);
+        svg::Color ChooseColor(const json::Node& node);
 
-        void RenderFiller(const Dict& dict);
+        void FillRenderSettings(const Dict& dict);
     };
 }
