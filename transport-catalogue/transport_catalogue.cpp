@@ -55,7 +55,7 @@ namespace transport_catalogue {
     }
 
     std::pair<int, int> TransportCatalogue::StopsCounter(const std::string& query) {
-        size_t stops;
+        size_t stops = 0;
         size_t unique_stops = SortUniq(busname_to_bus_.at(query)->stop_names_);
         if (busname_to_bus_.at(query)->circle) {
             stops = busname_to_bus_.at(query)->stop_names_.size();
@@ -107,11 +107,11 @@ namespace transport_catalogue {
     }
 
     bool TransportCatalogue::isValidBus(const std::string& query) {
-        return busname_to_bus_.count(query);
+        return busname_to_bus_.count(query) > 0;
     }
 
     bool TransportCatalogue::isValidStop(const std::string& query) {
-        return stopname_to_stop_.count(query);
+        return stopname_to_stop_.count(query) > 0;
     }
 
     std::optional<std::reference_wrapper<const std::set<std::string_view>>>
