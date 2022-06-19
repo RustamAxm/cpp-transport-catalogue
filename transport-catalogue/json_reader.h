@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "json.h"
+#include "json_builder.h"
 #include "transport_catalogue.h"
 #include "map_renderer.h"
 #include "request_handler.h"
@@ -48,6 +49,7 @@ namespace request {
 
         Document document_;
         Array arr;
+        std::vector<json::Node> outvec;
 
         std::vector<request::Stop> req_stops_;
         std::vector<request::Bus> req_buses_;

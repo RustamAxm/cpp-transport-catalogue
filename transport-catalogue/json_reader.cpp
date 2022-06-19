@@ -87,18 +87,23 @@ namespace json_reader {
         domain::stat_for_printer::Bus bus_stat;
         bus_stat = catalogue_.GetAllBusStat(node_map.at("name").AsString());
         Dict dict_;
-        if (bus_stat.is_valid) {
-            dict_["curvature"] = bus_stat.curvature;
-            dict_["request_id"] = id;
-            dict_["route_length"] = static_cast<int> (bus_stat.route_lenght);
-            dict_["stop_count"] = bus_stat.stops_on_route;
-            dict_["unique_stop_count"] = bus_stat.unique_stops;
-        } else {
-            dict_["request_id"] = id;
-            dict_["error_message"] = "not found"s;
-        }
 
-        arr.emplace_back(dict_);
+        Builder for_doc_to_print_;
+        for_doc_to_print_.StartDict();
+        if (bus_stat.is_valid) {
+            for_doc_to_print_.Key("curvature").Value(bus_stat.curvature);
+            for_doc_to_print_.Key("request_id").Value(id);
+            for_doc_to_print_.Key("route_length").Value(static_cast<int> (bus_stat.route_lenght));
+            for_doc_to_print_.Key("stop_count").Value(bus_stat.stops_on_route);
+            for_doc_to_print_.Key("unique_stop_count").Value(bus_stat.unique_stops);
+        } else {
+            for_doc_to_print_.Key("request_id").Value(id);
+            for_doc_to_print_.Key("error_message").Value("not found"s);
+        }
+        for_doc_to_print_.EndDict();
+
+        arr.emplace_back(for_doc_to_print_.Build());
+
     }
 
     void JsonReader::FillStopArray(const Dict& node_map) {
@@ -106,31 +111,37 @@ namespace json_reader {
 
         domain::stat_for_printer::Stop stop_stat = catalogue_.GetAllStopStat(node_map.at("name").AsString());
         Dict dict_;
+
+        Builder for_doc_to_print_;
+        for_doc_to_print_.StartDict();
+
         if (stop_stat.is_valid) {
             Array vec;
             for ( auto x : stop_stat.buses_on_stop) {
                 vec.push_back(std::string (x));
             }
-            dict_["buses"] = std::move(vec);
-            dict_["request_id"] = id;
-
+            for_doc_to_print_.Key("buses").Value(std::move(vec));
+            for_doc_to_print_.Key("request_id").Value(id);
         } else {
-            dict_["request_id"] = id;
-            dict_["error_message"] = "not found"s;
+            for_doc_to_print_.Key("request_id").Value(id);
+            for_doc_to_print_.Key("error_message").Value("not found"s);
         }
-        arr.emplace_back(dict_);
+        for_doc_to_print_.EndDict();
+        arr.emplace_back(std::move(for_doc_to_print_.Build()));
     }
 
     void JsonReader::FillMapArray(const Dict& node_map) {
         auto id = node_map.at("id").AsInt();
-        Dict dict_;
-        dict_["request_id"] = id;
+        Builder for_doc_to_print_;
+        for_doc_to_print_.StartDict();
+        for_doc_to_print_.Key("request_id").Value(id);
         std::ostringstream buffer;
         request_.SetRoutesForRender();
         renderer_.Render(buffer);
-        dict_["map"] = buffer.str();
+        for_doc_to_print_.Key("map").Value(buffer.str());
+        for_doc_to_print_.EndDict();
 
-        arr.emplace_back(dict_);
+        arr.emplace_back(for_doc_to_print_.Build());
     }
 
     void JsonReader::FillStat(const Array& array) {

@@ -43,11 +43,11 @@ namespace transport_catalogue {
 
     double TransportCatalogue::ComputeAllDistanceGeo(const std::vector<Stop*>& container, bool circle) {
         double all_distance = 0.0;
-        for (int i = 0; i < container.size() - 1; ++i) {
+        for (size_t i = 0; i < container.size() - 1; ++i) {
             all_distance += ComputeDistance(container[i]->coord_, container[i+1]->coord_);
         }
         if (!circle) {
-            for (int i = container.size() - 1; i > 0; --i) {
+            for (size_t i = container.size() - 1; i > 0; --i) {
                 all_distance += ComputeDistance(container[i]->coord_,container[i-1]->coord_);
             }
         }
