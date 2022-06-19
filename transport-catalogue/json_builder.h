@@ -23,7 +23,6 @@ namespace json {
 
             Builder& EndArray();
 
-        protected:
             Builder& Value(json::Node value);
 
         private:
@@ -53,7 +52,7 @@ namespace json {
 
             Builder& EndArray() = delete;
 
-//            Builder& Value(Node value) = delete;
+            Builder& Value(Node value) = delete;
         };
 
         class ArrayItemContext : public BaseContext {
