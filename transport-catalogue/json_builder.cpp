@@ -2,63 +2,49 @@
 
 namespace json {
 
-    BaseContext::BaseContext(Builder &builder) : builder_(builder) {}
+    Builder::BaseContext::BaseContext(Builder &builder) : builder_(builder) {}
 
-    DictItemContext BaseContext::StartDict() {
+    Builder::DictItemContext Builder::BaseContext::StartDict() {
         return builder_.StartDict();
     }
 
-    ArrayItemContext BaseContext::StartArray() {
+    Builder::ArrayItemContext Builder::BaseContext::StartArray() {
         return builder_.StartArray();
     }
 
-    Builder &BaseContext::EndArray() {
+    Builder& Builder::BaseContext::EndArray() {
         return builder_.EndArray();
     }
 
-    Builder &BaseContext::EndDict() {
+    Builder& Builder::BaseContext::EndDict() {
         return builder_.EndDict();
     }
 
-    KeyItemContext BaseContext::Key(std::string key) {
+    Builder::KeyItemContext Builder::BaseContext::Key(std::string key) {
         return builder_.Key(std::move(key));
     }
 
-    Builder &BaseContext::Value(Node value) {
+    Builder& Builder::BaseContext::Value(Node value) {
         return builder_.Value(std::move(value));
     }
 
     // KeyItemContext
 
-    KeyItemContext::KeyItemContext(Builder &builder) : BaseContext(builder) {}
+    Builder::KeyItemContext::KeyItemContext(Builder &builder) : BaseContext(builder) {}
 
-    KeyValueItemContext KeyItemContext::Value(Node value) {
-        return BaseContext::Value(std::move(value));
+    Builder::DictItemContext Builder::KeyItemContext::Value(Node value) {
+        return DictItemContext(BaseContext::Value(std::move(value)));
     }
-
-    // KeyValueItemContext
-
-    KeyValueItemContext::KeyValueItemContext(Builder &builder) : BaseContext(builder) {}
-
 
     // DictItemContext
 
-    DictItemContext::DictItemContext(Builder &builder) : BaseContext(builder) {}
-
+    Builder::DictItemContext::DictItemContext(Builder &builder) : BaseContext(builder) {}
 
     // ArrayItemContext
 
-    ArrayItemContext::ArrayItemContext(Builder &builder) : BaseContext(builder) {}
+    Builder::ArrayItemContext::ArrayItemContext(Builder &builder) : BaseContext(builder) {}
 
-    ArrayValueItemContext ArrayItemContext::Value(Node value) {
-        return BaseContext::Value(move(value));
-    }
-
-    // ArrayValueItemContext
-
-    ArrayValueItemContext::ArrayValueItemContext(Builder &builder) : BaseContext(builder) {}
-
-    ArrayValueItemContext ArrayValueItemContext::Value(Node value) {
+    Builder::ArrayItemContext Builder::ArrayItemContext::Value(Node value) {
         return BaseContext::Value(move(value));
     }
 
@@ -68,7 +54,7 @@ namespace json {
         nodes_stack_.emplace_back(&root_);
     }
 
-    KeyItemContext Builder::Key(std::string key) {
+    Builder::KeyItemContext Builder::Key(std::string key) {
         if (nodes_stack_.empty() ||
             !nodes_stack_.back()->IsMap()) {
             throw std::logic_error("cant build key");
@@ -90,28 +76,13 @@ namespace json {
         return *this;
     }
 
-    DictItemContext Builder::StartDict() {
-        if (NotValidNode()) {
-            throw std::logic_error("cant start Dictionary");
-        }
-        if (nodes_stack_.back()->IsArray()) {
-            nodes_stack_.emplace_back(&const_cast<Array&>(nodes_stack_.back()->AsArray()).emplace_back(Dict()));
-
-        } else {
-            *nodes_stack_.back() = Dict();
-        }
+    Builder::DictItemContext Builder::StartDict() {
+        Builder::StartContainer(std::move(Dict()));
         return *this;
     }
 
-    ArrayItemContext Builder::StartArray() {
-        if (NotValidNode()) {
-            throw std::logic_error("cant start Array");
-        }
-        if (nodes_stack_.back()->IsArray()) {
-            nodes_stack_.emplace_back(&const_cast<Array&>(nodes_stack_.back()->AsArray()).emplace_back(Array()));
-        } else {
-            *nodes_stack_.back() = Array();
-        }
+    Builder::ArrayItemContext Builder::StartArray() {
+        Builder::StartContainer(std::move(Array()));
         return *this;
     }
 
@@ -147,4 +118,5 @@ namespace json {
                 (!nodes_stack_.back()->IsNull() &&
                  !nodes_stack_.back()->IsArray()));
     }
+
 }
