@@ -49,7 +49,6 @@ namespace request {
 
         Document document_;
         Array arr;
-        std::vector<json::Node> outvec;
 
         std::vector<request::Stop> req_stops_;
         std::vector<request::Bus> req_buses_;
