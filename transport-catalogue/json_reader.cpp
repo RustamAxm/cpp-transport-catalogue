@@ -86,10 +86,10 @@ namespace json_reader {
 
         domain::stat_for_printer::Bus bus_stat;
         bus_stat = catalogue_.GetAllBusStat(node_map.at("name").AsString());
-        Dict dict_;
 
         Builder for_doc_to_print_;
         for_doc_to_print_.StartDict();
+
         if (bus_stat.is_valid) {
             for_doc_to_print_.Key("curvature").Value(bus_stat.curvature);
             for_doc_to_print_.Key("request_id").Value(id);
@@ -110,7 +110,6 @@ namespace json_reader {
         auto id = node_map.at("id").AsInt();
 
         domain::stat_for_printer::Stop stop_stat = catalogue_.GetAllStopStat(node_map.at("name").AsString());
-        Dict dict_;
 
         Builder for_doc_to_print_;
         for_doc_to_print_.StartDict();
@@ -132,15 +131,17 @@ namespace json_reader {
 
     void JsonReader::FillMapArray(const Dict& node_map) {
         auto id = node_map.at("id").AsInt();
+
         Builder for_doc_to_print_;
         for_doc_to_print_.StartDict();
+
         for_doc_to_print_.Key("request_id").Value(id);
         std::ostringstream buffer;
         request_.SetRoutesForRender();
         renderer_.Render(buffer);
         for_doc_to_print_.Key("map").Value(buffer.str());
-        for_doc_to_print_.EndDict();
 
+        for_doc_to_print_.EndDict();
         arr.emplace_back(for_doc_to_print_.Build());
     }
 
