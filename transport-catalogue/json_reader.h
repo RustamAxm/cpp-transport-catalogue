@@ -7,6 +7,7 @@
 #include "transport_catalogue.h"
 #include "map_renderer.h"
 #include "request_handler.h"
+#include "transport_router.h"
 
 namespace json_reader {
 
@@ -14,6 +15,7 @@ namespace json_reader {
     using TransportCatalogue = transport_catalogue::TransportCatalogue;
     using MapRenderer = map_renderer::MapRenderer;
     using Request = request_handler::RequestHandler;
+    using TransportRouter = transport_router::TransportRouter;
 
 namespace request {
 
@@ -34,7 +36,10 @@ namespace request {
 
     class JsonReader {
     public:
-        JsonReader(TransportCatalogue& tc, MapRenderer& renderer, Request& request);
+        JsonReader(TransportCatalogue& tc,
+                   MapRenderer& renderer,
+                   Request& request,
+                   TransportRouter& router);
 
         void AddDataFrame(std::istream& input);
 
@@ -46,8 +51,9 @@ namespace request {
         TransportCatalogue& catalogue_;
         MapRenderer& renderer_;
         Request& request_;
+        TransportRouter& router_;
 
-        Document document_;
+        Document document_ ;
         Array arr;
 
         std::vector<request::Stop> req_stops_;
@@ -65,10 +71,14 @@ namespace request {
 
         void FillMapArray(const Dict& node_map);
 
+        void FillRouteArray(const Dict& node_map);
+
         void FillStat(const Array& array);
 
         svg::Color ChooseColor(const json::Node& node);
 
         void FillRenderSettings(const Dict& dict);
+
+        void FillRoutingSettings(const Dict& dict);
     };
 }

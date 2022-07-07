@@ -154,11 +154,17 @@ namespace transport_catalogue {
         return stat;
     }
 
-    std::unordered_map<std::string_view, Stop*> TransportCatalogue::GetStopsForRender() {
-        return stopname_to_stop_;
-    }
-
     std::unordered_map<std::string_view, Bus*> TransportCatalogue::GetBusesForRender() {
         return busname_to_bus_;
     }
+
+    std::unordered_map<std::string_view, std::set<std::string_view>>& TransportCatalogue::GetStopsForRouter() {
+        return stopname_to_bus_;
+    }
+
+    std::unordered_map<std::string_view, Bus*>& TransportCatalogue::GetBusesForRouter() {
+        return busname_to_bus_;
+    }
+
+
 }

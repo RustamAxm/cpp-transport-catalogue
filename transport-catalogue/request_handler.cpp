@@ -3,8 +3,10 @@
 
 namespace request_handler {
 
-    RequestHandler::RequestHandler(TransportCatalogue& db, MapRenderer& renderer) : db_(db), renderer_(renderer) {
-    }
+    RequestHandler::RequestHandler(TransportCatalogue& db,
+                                   MapRenderer& renderer) :
+                                   db_(db),
+                                   renderer_(renderer) {}
 
     void RequestHandler::SetRoutesForRender() const {
 
@@ -15,4 +17,15 @@ namespace request_handler {
         renderer_.SetBusNameToBus(busname_to_bus);
     }
 
+//    void RequestHandler::SetStopsForRouter() const {
+//        std::map<std::string_view, std::set<std::string_view>> stopname_to_buses;
+//        for (const auto& x : db_.GetStopsForRouter()) {
+//            stopname_to_buses[x.first] = x.second;
+//        }
+//        router_.SetStopNameToBuses(stopname_to_buses);
+//    }
+//
+//    void RequestHandler::SetDistances() const {
+//        router_.SetDistances()
+//    }
 }

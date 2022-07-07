@@ -37,6 +37,5 @@ namespace domain {
             std::set<std::string_view> buses_on_stop;
         };
     }
-
 }
 

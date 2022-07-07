@@ -67,8 +67,6 @@ namespace map_renderer {
 
     }
 
-
-
     void MapRenderer::SetSettings (RenderSettings& settings) {
         settings_ = settings;
     }
@@ -141,7 +139,6 @@ namespace map_renderer {
         for (const auto & [busname, bus_ptr]: busname_to_bus_) {
             if (!bus_ptr->stop_names_.empty()) {
                 if (bus_ptr->circle) {
-
 
                     RenderBusNumberText(std::string(busname),
                                         bus_ptr->stop_names_.front()->coord_,

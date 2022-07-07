@@ -88,7 +88,6 @@ namespace map_renderer {
         std::map<std::string_view, geo::Coordinates*> stop_to_stops_coord_;
         std::map<std::string_view, domain::Bus*> busname_to_bus_;
         svg::Document document_;
-
     };
 
 }

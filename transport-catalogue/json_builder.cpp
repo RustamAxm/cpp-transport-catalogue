@@ -56,10 +56,10 @@ namespace json {
 
     Builder::KeyItemContext Builder::Key(std::string key) {
         if (nodes_stack_.empty() ||
-            !nodes_stack_.back()->IsMap()) {
+            !nodes_stack_.back()->IsDict()) {
             throw std::logic_error("cant build key");
         }
-        nodes_stack_.emplace_back(&const_cast<Dict&>(nodes_stack_.back()->AsMap())[key]);
+        nodes_stack_.emplace_back(&const_cast<Dict&>(nodes_stack_.back()->AsDict())[key]);
         return *this;
     }
 
@@ -88,7 +88,7 @@ namespace json {
 
     Builder& Builder::EndDict() {
         if (nodes_stack_.empty() ||
-            !nodes_stack_.back()->IsMap()) {
+            !nodes_stack_.back()->IsDict()) {
             throw std::logic_error("this node is not Dictionary");
         }
         nodes_stack_.pop_back();

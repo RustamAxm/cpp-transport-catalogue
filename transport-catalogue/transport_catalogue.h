@@ -42,8 +42,6 @@ namespace transport_catalogue {
 
         std::vector<Stop*> StopsPtrFinder(const std::vector<std::string>& stops);
 
-        size_t DistanceFinder(const std::string_view first, const std::string_view second);
-
         size_t ComputeAllDistance(const std::vector<Stop*>& container, bool circle);
 
         double ComputeAllDistanceGeo(const std::vector<Stop*>& container, bool circle);
@@ -52,6 +50,10 @@ namespace transport_catalogue {
         size_t SortUniq(const std::vector<T>& container);
 
         std::pair<int, int> StopsCounter(const std::string& query);
+
+        bool isValidBus(const std::string& query);
+
+        bool isValidStop(const std::string& query);
 
     public:
         TransportCatalogue() = default;
@@ -62,15 +64,13 @@ namespace transport_catalogue {
 
         void SetDistances(const std::string& from_stop, const std::string& to_stop, size_t distance);
 
+        size_t DistanceFinder(const std::string_view first, const std::string_view second);
+
         std::pair<int, int> GetStopsStatForBus(const std::string& query);
 
         size_t GetAllBusDistance(const std::string& query);
 
         double GetCurvature(const std::string& query);
-
-        bool isValidBus(const std::string& query);
-
-        bool isValidStop(const std::string& query);
 
         std::optional<std::reference_wrapper<const std::set<std::string_view>>>
         GetBusesForStop(const std::string& query);
@@ -79,9 +79,11 @@ namespace transport_catalogue {
 
         stat_for_printer::Stop GetAllStopStat(const std::string& query);
 
-// for map renderer
-        std::unordered_map<std::string_view, Stop*> GetStopsForRender();
+        // for map renderer
         std::unordered_map<std::string_view, Bus*> GetBusesForRender();
+        // for transport router
+        std::unordered_map<std::string_view, std::set<std::string_view>>& GetStopsForRouter();
+        std::unordered_map<std::string_view, Bus*>& GetBusesForRouter();
 
         ~TransportCatalogue() = default;
     };
