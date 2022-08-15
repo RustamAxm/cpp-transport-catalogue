@@ -9,6 +9,7 @@ namespace transport_data_base {
     void TransportCatalogueSerialization::Serialize(){
 
         *base_.mutable_transport_catalogue() = std::move(SerializeCatalogue());
+        *base_.mutable_map_renderer() = std::move(SerializeMapRenderer());
 
         std::filesystem::path path = settings_.file_name;
         std::ofstream out_file(path, std::ios::binary);
@@ -29,7 +30,7 @@ namespace transport_data_base {
             *tmp_catalogue.mutable_buses(b) = std::move(SerializeBus(bus_data));
             ++b;
         }
-        int d = 0; // dist counter
+        int d = 0; // distance counter
         for (auto& [stops, length] : catalogue_.GetDistanceTable()) {
             tmp_catalogue.add_distances();          // add element in array of proto
             *tmp_catalogue.mutable_distances(d) = std::move(SerializeDistance(stops, length)); // modify new element
@@ -65,15 +66,70 @@ namespace transport_data_base {
         return tmp_dist;
     }
 
+    transport_data_base::MapRenderer TransportCatalogueSerialization::SerializeMapRenderer() {
+        transport_data_base::MapRenderer tmp_map;
+        *tmp_map.mutable_settings() = std::move(SerializeRenderSettings());
+        return tmp_map;
+    }
+
+    transport_data_base::RenderSettings TransportCatalogueSerialization::SerializeRenderSettings() {
+        transport_data_base::RenderSettings tmp_render_settings;
+        map_renderer::RenderSettings cat_rend_set = renderer_.GetRenderSettings();
+
+        tmp_render_settings.set_width(cat_rend_set.width);
+        tmp_render_settings.set_height(cat_rend_set.height);
+        tmp_render_settings.set_padding(cat_rend_set.padding);
+        tmp_render_settings.set_line_width(cat_rend_set.line_width);
+        tmp_render_settings.set_stop_radius(cat_rend_set.stop_radius);
+        tmp_render_settings.set_bus_label_font_size(cat_rend_set.bus_label_font_size);
+        tmp_render_settings.add_bus_label_offset(cat_rend_set.bus_label_offset[0]);
+        tmp_render_settings.add_bus_label_offset(cat_rend_set.bus_label_offset[1]);
+        tmp_render_settings.set_stop_label_font_size(cat_rend_set.stop_label_font_size);
+        tmp_render_settings.add_stop_label_offset(cat_rend_set.stop_label_offset[0]);
+        tmp_render_settings.add_stop_label_offset(cat_rend_set.stop_label_offset[1]);
+        *tmp_render_settings.mutable_underlayer_color() = SerializeColor(cat_rend_set.underlayer_color);
+        tmp_render_settings.set_underlayer_width(cat_rend_set.underlayer_width);
+
+        for (int i = 0; i < cat_rend_set.color_palette.size(); ++i) {
+            tmp_render_settings.add_color_palette();
+            *tmp_render_settings.mutable_color_palette(i) = SerializeColor(cat_rend_set.color_palette[i]);
+        }
+
+        return tmp_render_settings;
+    }
+
+    transport_data_base::Color TransportCatalogueSerialization::SerializeColor(const svg::Color& color) {
+        transport_data_base::Color tmp_color;
+        if (std::holds_alternative<std::monostate>(color)) {
+            return {};
+        }
+        else if (std::holds_alternative<std::string>(color)) {
+            tmp_color.set_name(std::get<std::string>(color));
+        }
+        else if (std::holds_alternative<svg::Rgb>(color)) {
+            svg::Rgb tmp_rgb_color = std::get<svg::Rgb>(color);
+            tmp_color.mutable_rgb()->set_red(tmp_rgb_color.red);
+            tmp_color.mutable_rgb()->set_green(tmp_rgb_color.green);
+            tmp_color.mutable_rgb()->set_blue(tmp_rgb_color.blue);
+        }
+        else {
+            svg::Rgba tmp_rgba_color = std::get<svg::Rgba>(color);
+            tmp_color.mutable_rgba()->set_red(tmp_rgba_color.red);
+            tmp_color.mutable_rgba()->set_green(tmp_rgba_color.green);
+            tmp_color.mutable_rgba()->set_blue(tmp_rgba_color.blue);
+            tmp_color.mutable_rgba()->set_opacity(tmp_rgba_color.opacity);
+        }
+        return tmp_color;
+    }
+
     void TransportCatalogueSerialization::Deserialize() {
         std::filesystem::path path = settings_.file_name;
         std::ifstream in_file(path, std::ios::binary);
 
-        transport_data_base::TransportCatalogue base;
+        base_.ParseFromIstream(&in_file);
 
-        base.ParseFromIstream(&in_file);
-
-        DeserializeCatalogue(base.transport_catalogue());
+        DeserializeCatalogue(base_.transport_catalogue());
+        DeserializeMapRenderer(base_.map_renderer());
     }
 
     void TransportCatalogueSerialization::DeserializeCatalogue(const transport_data_base::Catalogue& base) {
@@ -98,4 +154,54 @@ namespace transport_data_base {
                                     base.distances(i).distance());
         }
     }
-};
+
+    void TransportCatalogueSerialization::DeserializeMapRenderer(const transport_data_base::MapRenderer& base) {
+        renderer_.SetSettings(DeserializeMapRenderSettings(base.settings()));
+    }
+
+    map_renderer::RenderSettings TransportCatalogueSerialization::DeserializeMapRenderSettings(const transport_data_base::RenderSettings& base_render_settings) {
+        map_renderer::RenderSettings tmp_settings;
+        tmp_settings.width = base_render_settings.width();
+        tmp_settings.height = base_render_settings.height();
+        tmp_settings.padding = base_render_settings.padding();
+        tmp_settings.line_width = base_render_settings.line_width();
+        tmp_settings.stop_radius = base_render_settings.stop_radius();
+        tmp_settings.bus_label_font_size = base_render_settings.bus_label_font_size();
+        tmp_settings.bus_label_offset[0] = base_render_settings.bus_label_offset(0);
+        tmp_settings.bus_label_offset[1] = base_render_settings.bus_label_offset(1);
+        tmp_settings.stop_label_font_size = base_render_settings.stop_label_font_size();
+        tmp_settings.stop_label_offset[0] = base_render_settings.stop_label_offset(0);
+        tmp_settings.stop_label_offset[1] = base_render_settings.stop_label_offset(1);
+        tmp_settings.underlayer_color = DeserializeColor(base_render_settings.underlayer_color());
+        tmp_settings.underlayer_width = base_render_settings.underlayer_width();
+        tmp_settings.color_palette.reserve(base_render_settings.color_palette_size());
+        for (int i = 0; i < base_render_settings.color_palette_size(); ++i) {
+            tmp_settings.color_palette.emplace_back(std::move(DeserializeColor(base_render_settings.color_palette(i))));
+        }
+        return tmp_settings;
+    }
+
+    svg::Color TransportCatalogueSerialization::DeserializeColor(const transport_data_base::Color& base_color) {
+        svg::Color empty_color{};
+        switch (base_color.data_case()) {
+            case transport_data_base::Color::DataCase::DATA_NOT_SET:
+                return  empty_color;
+                break;
+            case transport_data_base::Color::DataCase::kName:
+                return base_color.name();
+                break;
+            case transport_data_base::Color::DataCase::kRgb:
+                return svg::Rgb(base_color.rgb().red(),
+                                base_color.rgb().green(),
+                                base_color.rgb().blue());
+                break;
+            case transport_data_base::Color::DataCase::kRgba:
+                return svg::Rgba(base_color.rgba().red(),
+                                 base_color.rgba().green(),
+                                 base_color.rgba().blue(),
+                                 base_color.rgba().opacity());
+                break;
+        }
+        return  empty_color;
+    }
+}

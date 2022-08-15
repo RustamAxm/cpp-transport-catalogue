@@ -6,7 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)
 
-protobuf_generate_cpp(TRANSPORT_CATALOGUE_PROTO_SRCS TRANSPORT_CATALOGUE_PROTO_HDRS transport_catalogue.proto)
+protobuf_generate_cpp(TRANSPORT_CATALOGUE_PROTO_SRCS TRANSPORT_CATALOGUE_PROTO_HDRS
+        transport_catalogue.proto
+        svg.proto
+        map_renderer.proto)
 
 set(JSON_FILES json.cpp
         json.h
@@ -23,8 +26,10 @@ set(ROUTER_FILES graph.h
 
 set(RENDER_FILES svg.cpp
         svg.h
+        svg.proto
         map_renderer.cpp
-        map_renderer.h)
+        map_renderer.h
+        map_renderer.proto)
 
 set(TRANSPORT_CATALOGUE_FILES geo.h
         main.cpp

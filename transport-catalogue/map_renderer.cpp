@@ -67,7 +67,7 @@ namespace map_renderer {
 
     }
 
-    void MapRenderer::SetSettings (RenderSettings& settings) {
+    void MapRenderer::SetSettings (const RenderSettings& settings) {
         settings_ = settings;
     }
 
@@ -234,6 +234,10 @@ namespace map_renderer {
         RenderStopNames(projector);
 
         document_.Render(out);
+    }
+
+    map_renderer::RenderSettings MapRenderer::GetRenderSettings() {
+        return settings_;
     }
 
 }

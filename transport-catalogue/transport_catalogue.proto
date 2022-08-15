@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "map_renderer.proto";
+
 package transport_data_base;
 
 message Coordinates {
@@ -32,4 +34,5 @@ message Catalogue {
 
 message TransportCatalogue {
   Catalogue transport_catalogue = 1;
+  MapRenderer map_renderer = 2;
 }

@@ -63,7 +63,7 @@ namespace map_renderer {
 
         MapRenderer() = default;
 
-        void SetSettings (RenderSettings& set);
+        void SetSettings (const RenderSettings& set);
 
         void SetBusNameToBus(std::map<std::string_view, domain::Bus*>& busname_to_bus);
 
@@ -82,6 +82,8 @@ namespace map_renderer {
         void RenderStopNames(const sphere_projector::SphereProjector& projector);
 
         void Render(std::ostream& out);
+
+        RenderSettings GetRenderSettings();
 
     private:
         RenderSettings settings_;

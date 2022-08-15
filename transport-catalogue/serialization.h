@@ -12,6 +12,7 @@
 using namespace std::string_literals;
 
 namespace transport_data_base {
+
 struct SerializationSettings {
     std::string file_name = ""s;
 };
@@ -19,8 +20,10 @@ struct SerializationSettings {
 
 class TransportCatalogueSerialization{
 public:
-    TransportCatalogueSerialization(transport_catalogue::TransportCatalogue& catalogue) :
-            catalogue_(catalogue) {}
+    TransportCatalogueSerialization(transport_catalogue::TransportCatalogue& catalogue,
+                                    map_renderer::MapRenderer& renderer) :
+            catalogue_(catalogue),
+            renderer_(renderer) {}
 
     void SetSettings(const SerializationSettings& settings);
 
@@ -30,7 +33,7 @@ public:
 
 private:
     transport_catalogue::TransportCatalogue& catalogue_;
-//    map_renderer::MapRenderer& renderer_;
+    map_renderer::MapRenderer& renderer_;
 //    transport_router::TransportRouter& router_;
     SerializationSettings settings_;
 
@@ -42,7 +45,15 @@ private:
     transport_data_base::Distance SerializeDistance(const std::pair<domain::Stop*, domain::Stop*> stops,
                                                         size_t length);
 
+    transport_data_base::MapRenderer SerializeMapRenderer();
+    transport_data_base::RenderSettings SerializeRenderSettings();
+    transport_data_base::Color SerializeColor(const svg::Color& color);
+
     void DeserializeCatalogue(const transport_data_base::Catalogue& base);
+
+    void DeserializeMapRenderer(const transport_data_base::MapRenderer& base);
+    map_renderer::RenderSettings DeserializeMapRenderSettings(const transport_data_base::RenderSettings& render_set);
+    svg::Color DeserializeColor(const transport_data_base::Color& base_color);
 };
 
 }
