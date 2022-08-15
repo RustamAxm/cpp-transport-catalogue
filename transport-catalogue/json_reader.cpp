@@ -7,11 +7,13 @@ namespace json_reader {
     JsonReader::JsonReader(TransportCatalogue& tc,
                            MapRenderer& renderer,
                            Request& request,
-                           TransportRouter& router) :
+                           TransportRouter& router,
+                           TransportSerialization& serialization):
                            catalogue_(tc),
                            renderer_(renderer),
                            request_(request),
-                           router_(router) {}
+                           router_(router),
+                           serialization_(serialization) {}
 
 
     void JsonReader::AddDataFrame(std::istream& input) {
@@ -21,11 +23,14 @@ namespace json_reader {
                 FillBase(node.second.AsArray());
                 FillCatalogue();
             } else if (node.first == "stat_requests"s) {
+                serialization_.Deserialize();
                 FillStat(node.second.AsArray());
             } else if (node.first == "render_settings") {
                 FillRenderSettings(node.second.AsDict());
             } else if (node.first == "routing_settings") {
                 FillRoutingSettings(node.second.AsDict());
+            } else if (node.first == "serialization_settings") {
+                FillSerializationSettings(node.second.AsDict());
             }
         }
     }
@@ -262,5 +267,11 @@ namespace json_reader {
         settings.bus_velosuty = dict.at("bus_velocity").AsDouble();
         router_.SetSettings(settings);
         router_.ComputeGraph();
+    }
+
+    void JsonReader::FillSerializationSettings(const Dict& dict) {
+        transport_data_base::SerializationSettings result;
+        result.file_name = dict.at("file"s).AsString();
+        serialization_.SetSettings(result);
     }
 }

@@ -3,7 +3,7 @@
 
 namespace transport_catalogue {
 
-    std::vector<Stop*> TransportCatalogue::StopsPtrFinder(const std::vector<std::string>& stops) {
+    std::vector<Stop*> TransportCatalogue::StopsPtrFinder(const std::vector<std::string_view>& stops) {
         std::vector<Stop*> names_;
         for (const auto& stop_name : stops) {
             names_.push_back(stopname_to_stop_.at(stop_name));
@@ -54,7 +54,7 @@ namespace transport_catalogue {
         return all_distance;
     }
 
-    std::pair<int, int> TransportCatalogue::StopsCounter(const std::string& query) {
+    std::pair<int, int> TransportCatalogue::StopsCounter(const std::string_view query) {
         size_t stops = 0;
         size_t unique_stops = SortUniq(busname_to_bus_.at(query)->stop_names_);
         if (busname_to_bus_.at(query)->circle) {
@@ -72,8 +72,8 @@ namespace transport_catalogue {
         stopname_to_stop_.insert({stops_.back().name_, &stops_.back()});
     }
 
-    void TransportCatalogue::AddBus(const std::string& bus, const std::vector<std::string>& stops, bool circle) {
-        Bus tmp_bus = {bus, circle, StopsPtrFinder(stops)};
+    void TransportCatalogue::AddBus(const std::string_view bus, const std::vector<std::string_view>& stops, bool circle) {
+        Bus tmp_bus = {std::string(bus), circle, StopsPtrFinder(stops)};
         buses_.push_back(tmp_bus);
         busname_to_bus_.insert({buses_.back().number_, &buses_.back()});
 
@@ -82,23 +82,23 @@ namespace transport_catalogue {
         }
     }
 
-    void TransportCatalogue::SetDistances(const std::string& from_stop, const std::string& to_stop, size_t distance) {
+    void TransportCatalogue::SetDistances(const std::string_view from_stop, const std::string_view to_stop, size_t distance) {
         auto stop_from = stopname_to_stop_.at(from_stop);
         auto stop_to = stopname_to_stop_.at(to_stop);
         std::pair<Stop*, Stop*> key_ = std::make_pair(stop_from, stop_to);
         distances_stop_stop_.insert({key_, distance});
     }
 
-    std::pair<int, int> TransportCatalogue::GetStopsStatForBus(const std::string& query) {
+    std::pair<int, int> TransportCatalogue::GetStopsStatForBus(const std::string_view query) {
         return StopsCounter(query);
     }
 
-    size_t TransportCatalogue::GetAllBusDistance(const std::string& query) {
+    size_t TransportCatalogue::GetAllBusDistance(const std::string_view query) {
         return ComputeAllDistance(busname_to_bus_.at(query)->stop_names_,
                                   busname_to_bus_.at(query)->circle);
     }
 
-    double TransportCatalogue::GetCurvature(const std::string& query) {
+    double TransportCatalogue::GetCurvature(const std::string_view query) {
         size_t length = GetAllBusDistance(query);
         double coord_length = ComputeAllDistanceGeo(busname_to_bus_.at(query)->stop_names_,
                                                     busname_to_bus_.at(query)->circle);
@@ -115,7 +115,7 @@ namespace transport_catalogue {
     }
 
     std::optional<std::reference_wrapper<const std::set<std::string_view>>>
-    TransportCatalogue::GetBusesForStop(const std::string& query) {
+    TransportCatalogue::GetBusesForStop(const std::string_view query) {
         auto found = stopname_to_bus_.find(query);
         if (found == stopname_to_bus_.end()) {
             return std::nullopt;
@@ -164,6 +164,13 @@ namespace transport_catalogue {
 
     std::unordered_map<std::string_view, Bus*>& TransportCatalogue::GetBusesForRouter() {
         return busname_to_bus_;
+    }
+
+    std::unordered_map<std::string_view, Stop*>& TransportCatalogue::GetStopNameToStop() {
+        return stopname_to_stop_;
+    }
+    std::unordered_map<std::pair<Stop*, Stop*>, size_t, StopHasher>& TransportCatalogue::GetDistanceTable() {
+        return distances_stop_stop_;
     }
 
 

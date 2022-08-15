@@ -8,6 +8,7 @@
 #include "map_renderer.h"
 #include "request_handler.h"
 #include "transport_router.h"
+#include "serialization.h"
 
 namespace json_reader {
 
@@ -16,6 +17,7 @@ namespace json_reader {
     using MapRenderer = map_renderer::MapRenderer;
     using Request = request_handler::RequestHandler;
     using TransportRouter = transport_router::TransportRouter;
+    using TransportSerialization = transport_data_base::TransportCatalogueSerialization;
 
 namespace request {
 
@@ -28,7 +30,7 @@ namespace request {
 
     struct Bus {
         std::string name;
-        std::vector<std::string> stops;
+        std::vector<std::string_view> stops;
         bool is_roundtrip;
     };
 
@@ -39,7 +41,8 @@ namespace request {
         JsonReader(TransportCatalogue& tc,
                    MapRenderer& renderer,
                    Request& request,
-                   TransportRouter& router);
+                   TransportRouter& router,
+                   TransportSerialization& serialization);
 
         void AddDataFrame(std::istream& input);
 
@@ -52,6 +55,7 @@ namespace request {
         MapRenderer& renderer_;
         Request& request_;
         TransportRouter& router_;
+        TransportSerialization& serialization_;
 
         Document document_ ;
         Array arr;
@@ -80,5 +84,8 @@ namespace request {
         void FillRenderSettings(const Dict& dict);
 
         void FillRoutingSettings(const Dict& dict);
+
+        void FillSerializationSettings(const Dict& dict);
+
     };
 }

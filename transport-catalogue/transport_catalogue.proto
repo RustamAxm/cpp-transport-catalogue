@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package transport_data_base;
+
+message Coordinates {
+  double lat = 1;
+  double lng = 2;
+}
+
+message Stop {
+  string name = 1;
+  Coordinates coord = 2;
+}
+
+message Bus {
+  string number = 1;
+  bool circle = 2;
+  repeated bytes stop_names = 3;
+}
+
+message Distance {
+  bytes from = 1;
+  bytes to = 2;
+  uint32 distance = 3;
+}
+
+message Catalogue {
+  repeated Stop stops = 1;
+  repeated Bus buses = 2;
+  repeated Distance distances = 3;
+}
+
+message TransportCatalogue {
+  Catalogue transport_catalogue = 1;
+}

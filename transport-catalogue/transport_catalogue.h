@@ -40,7 +40,7 @@ namespace transport_catalogue {
         using DistanceMap = std::unordered_map<std::pair<Stop*, Stop*>, size_t, StopHasher>;
         DistanceMap distances_stop_stop_;
 
-        std::vector<Stop*> StopsPtrFinder(const std::vector<std::string>& stops);
+        std::vector<Stop*> StopsPtrFinder(const std::vector<std::string_view>& stops);
 
         size_t ComputeAllDistance(const std::vector<Stop*>& container, bool circle);
 
@@ -49,7 +49,7 @@ namespace transport_catalogue {
         template<typename T>
         size_t SortUniq(const std::vector<T>& container);
 
-        std::pair<int, int> StopsCounter(const std::string& query);
+        std::pair<int, int> StopsCounter(const std::string_view query);
 
         bool isValidBus(const std::string& query);
 
@@ -60,20 +60,20 @@ namespace transport_catalogue {
 
         void AddStop(Stop stop);
 
-        void AddBus(const std::string& bus, const std::vector<std::string>& stops, bool circle);
+        void AddBus(const std::string_view bus, const std::vector<std::string_view>& stops, bool circle);
 
-        void SetDistances(const std::string& from_stop, const std::string& to_stop, size_t distance);
+        void SetDistances(const std::string_view from_stop, const std::string_view to_stop, size_t distance);
 
         size_t DistanceFinder(const std::string_view first, const std::string_view second);
 
-        std::pair<int, int> GetStopsStatForBus(const std::string& query);
+        std::pair<int, int> GetStopsStatForBus(const std::string_view query);
 
-        size_t GetAllBusDistance(const std::string& query);
+        size_t GetAllBusDistance(const std::string_view query);
 
-        double GetCurvature(const std::string& query);
+        double GetCurvature(const std::string_view query);
 
         std::optional<std::reference_wrapper<const std::set<std::string_view>>>
-        GetBusesForStop(const std::string& query);
+        GetBusesForStop(const std::string_view query);
 
         stat_for_printer::Bus GetAllBusStat(const std::string& query);
 
@@ -84,6 +84,9 @@ namespace transport_catalogue {
         // for transport router
         std::unordered_map<std::string_view, std::set<std::string_view>>& GetStopsForRouter();
         std::unordered_map<std::string_view, Bus*>& GetBusesForRouter();
+        // for serialize
+        std::unordered_map<std::string_view, Stop*>& GetStopNameToStop();
+        DistanceMap& GetDistanceTable();
 
         ~TransportCatalogue() = default;
     };
