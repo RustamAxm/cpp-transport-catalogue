@@ -13,7 +13,6 @@ namespace request_handler {
 
     using TransportCatalogue = transport_catalogue::TransportCatalogue;
     using MapRenderer = map_renderer::MapRenderer;
-    using TransportRouter = transport_router::TransportRouter;
 
     class RequestHandler {
     public:
@@ -22,14 +21,9 @@ namespace request_handler {
 
         void SetRoutesForRender() const;
 
-//        void SetStopsForRouter() const;
-//
-//        void SetDistances() const;
-
     private:
         TransportCatalogue& db_;
         MapRenderer& renderer_;
-//        TransportRouter& router_;
     };
 }
 

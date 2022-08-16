@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+import "graph.proto";
+
+package transport_data_base;
+
+message RouterSettings {
+  uint32 bus_wait_time = 1;
+  double bus_velocity_kmh = 2;
+}
+
+///// ROUTER DATA
+message RouteInternalData {
+  double weight = 1;
+  oneof prev_edge {
+    uint32 edgeid = 2;
+  }
+}
+
+message RouteInternalDataVectorElem {
+  oneof elem {
+    RouteInternalData data = 1;
+  }
+}
+
+message RoutesInternalData {
+  repeated RouteInternalDataVectorElem route_internal_data_elem = 1;
+}
+
+message Router {
+  repeated RoutesInternalData routes_internal_data = 1;
+}
+///// TRANSPORTROUTER DATA
+message StopToId {
+  string stop = 1;
+  uint32 id = 2;
+}
+
+message IdToStop {
+  uint32 id = 1;
+  string stop = 2;
+}
+
+message EdgeIdToBus {
+  uint32 edge_id = 1;
+  bytes bus = 2;
+}
+
+message EdgeIdToSpanCount {
+  uint32 edge_id = 1;
+  uint32 span_count = 2;
+}
+
+message TransportRouterData {
+  repeated StopToId stop_to_id_ = 1;
+  repeated IdToStop id_to_stop_= 2;
+  repeated EdgeIdToBus edge_id_to_bus_ = 3;
+  repeated EdgeIdToSpanCount edge_id_to_span_count_ = 4;
+}
+
+message TransportRouter {
+  RouterSettings settings = 1;
+  TransportRouterData transport_router = 2;
+  Router router = 3;
+  Graph graph = 4;
+}

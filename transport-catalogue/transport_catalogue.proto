@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "map_renderer.proto";
+import "transport_router.proto";
 
 package transport_data_base;
 
@@ -35,4 +36,5 @@ message Catalogue {
 message TransportCatalogue {
   Catalogue transport_catalogue = 1;
   MapRenderer map_renderer = 2;
+  TransportRouter transport_router = 3;
 }

@@ -22,7 +22,9 @@ int Production(int argc, char* argv[]) {
     map_renderer::MapRenderer renderer;
     transport_router::TransportRouter router(catalogue);
 
-    transport_data_base::TransportCatalogueSerialization serialization(catalogue, renderer);
+    transport_data_base::TransportCatalogueSerialization serialization(catalogue,
+                                                                       renderer,
+                                                                       router);
 
     request_handler::RequestHandler request(catalogue,
                                             renderer);

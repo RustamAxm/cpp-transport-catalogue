@@ -262,9 +262,9 @@ namespace json_reader {
     }
 
     void JsonReader::FillRoutingSettings(const Dict& dict) {
-        transport_router::RoutingSettings settings;
+        transport_router::RouterSettings settings;
         settings.bus_wait_time = dict.at("bus_wait_time").AsInt();
-        settings.bus_velosuty = dict.at("bus_velocity").AsDouble();
+        settings.bus_velocity = dict.at("bus_velocity").AsDouble();
         router_.SetSettings(settings);
         router_.ComputeGraph();
     }

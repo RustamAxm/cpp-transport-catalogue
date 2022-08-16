@@ -9,7 +9,9 @@ find_package(Threads REQUIRED)
 protobuf_generate_cpp(TRANSPORT_CATALOGUE_PROTO_SRCS TRANSPORT_CATALOGUE_PROTO_HDRS
         transport_catalogue.proto
         svg.proto
-        map_renderer.proto)
+        map_renderer.proto
+        graph.proto
+        transport_router.proto)
 
 set(JSON_FILES json.cpp
         json.h
@@ -22,7 +24,9 @@ set(ROUTER_FILES graph.h
         ranges.h
         transport_router.cpp
         transport_router.h
-        router.h)
+        router.h
+        graph.proto
+        transport_router.proto)
 
 set(RENDER_FILES svg.cpp
         svg.h

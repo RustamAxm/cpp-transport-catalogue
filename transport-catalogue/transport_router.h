@@ -10,9 +10,9 @@
 
 namespace transport_router {
 
-    struct RoutingSettings {
+    struct RouterSettings {
         int bus_wait_time = 0;
-        double bus_velosuty = 0.0;
+        double bus_velocity = 0.0;
     };
 
     namespace result {
@@ -38,14 +38,33 @@ namespace transport_router {
     public:
         explicit TransportRouter(TransportCatalogue& catalogue);
 
-        void SetSettings(RoutingSettings& settings);
+        void SetSettings(const RouterSettings& settings);
 
         void ComputeGraph();
 
         std::optional<result::Route> ComputeRoute(std::string_view from, std::string_view to);
+        // Sprint 14
+        RouterSettings GetSettings();
+        const graph::DirectedWeightedGraph<double>& GetGraph() const;
+        const graph::Router<double>::RoutesInternalData& GetRouterData() const;
+        const std::unordered_map<std::string_view, size_t>* GetStopToId() const;
+        const std::unordered_map<size_t, std::string_view>* GetIdToStop() const;
+        const std::unordered_map<size_t, std::string_view>* GetEdgeIdToBus() const;
+        const std::unordered_map<size_t, size_t>* GetEdgeIdToSpanCount() const;
+
+        std::unordered_map<std::string_view, size_t>& SetStopToId();
+        std::unordered_map<size_t, std::string_view>& SetIdToStop();
+        std::unordered_map<size_t, std::string_view>& SetEdgeIdToBus();
+        std::unordered_map<size_t, size_t>& SetEdgeIdToSpanCount();
+
+        graph::DirectedWeightedGraph<double>& ModifyGraph();
+
+        void GenerateEmptyRouter();
+
+        std::unique_ptr<graph::Router<double>>& ModifyRouter();
 
     private:
-        RoutingSettings settings_;
+        RouterSettings settings_;
         TransportCatalogue& tc_;
         graph::DirectedWeightedGraph<double> graph_;
         std::unique_ptr<graph::Router<double>> router_ = nullptr;

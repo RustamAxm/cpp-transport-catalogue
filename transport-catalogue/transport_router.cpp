@@ -5,8 +5,67 @@ namespace transport_router {
     TransportRouter::TransportRouter(TransportCatalogue &catalogue) : tc_(catalogue){
     }
 
-    void TransportRouter::SetSettings(RoutingSettings& settings) {
+    void TransportRouter::SetSettings(const RouterSettings& settings) {
         settings_ = settings;
+    }
+
+    RouterSettings TransportRouter::GetSettings() {
+        return settings_;
+    }
+
+    const graph::DirectedWeightedGraph<double>& TransportRouter::GetGraph() const {
+        return graph_;
+    }
+
+    const graph::Router<double>::RoutesInternalData& TransportRouter::GetRouterData() const { //Sprint 14
+        return router_.get()->GetRoutesInternalData();
+    }
+
+    const std::unordered_map<std::string_view, size_t>* TransportRouter::GetStopToId() const {
+        return &stop_to_id_;
+    }
+
+    const std::unordered_map<size_t, std::string_view>* TransportRouter::GetIdToStop() const {
+        return &id_to_stop_;
+    }
+
+    const std::unordered_map<size_t, std::string_view>* TransportRouter::GetEdgeIdToBus() const {
+        return &edge_id_to_bus_;
+    }
+
+    const std::unordered_map<size_t, size_t>* TransportRouter::GetEdgeIdToSpanCount() const {
+        return &edge_id_to_span_count_;
+    }
+
+    std::unordered_map<std::string_view, size_t>& TransportRouter::SetStopToId() {
+        return stop_to_id_;
+    }
+
+    std::unordered_map<size_t, std::string_view>& TransportRouter::SetIdToStop() {
+        return id_to_stop_;
+    }
+
+    std::unordered_map<size_t, std::string_view>& TransportRouter::SetEdgeIdToBus() {
+        return edge_id_to_bus_;
+    }
+
+    std::unordered_map<size_t, size_t>& TransportRouter::SetEdgeIdToSpanCount() {
+        return edge_id_to_span_count_;
+    }
+
+    graph::DirectedWeightedGraph<double>& TransportRouter::ModifyGraph() {
+        return graph_;
+    }
+
+    void TransportRouter::GenerateEmptyRouter() {
+        if (router_ != nullptr) {
+            router_.release();
+        }
+        router_ = std::make_unique<graph::Router<double>>(graph::Router(graph_));
+    }
+
+    std::unique_ptr<graph::Router<double>>& TransportRouter::ModifyRouter() {
+        return router_;
     }
 
     void TransportRouter::ComputeGraph() {
@@ -54,7 +113,7 @@ namespace transport_router {
     }
 
     double TransportRouter::CalculateWeight(size_t distance) {
-        return static_cast<double>(distance) / (settings_.bus_velosuty * 1000.0 / 60);
+        return static_cast<double>(distance) / (settings_.bus_velocity * 1000.0 / 60);
     }
 
     std::vector<double> TransportRouter::ComputeWeight(const std::vector<domain::Stop*>& route) {
