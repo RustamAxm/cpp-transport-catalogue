@@ -52,11 +52,11 @@ private:
     transport_data_base::RenderSettings SerializeRenderSettings();
     transport_data_base::Color SerializeColor(const svg::Color& color);
     // Transport router
-    transport_data_base::TransportRouter SerializeTransportRouterData();
+    transport_data_base::TransportRouter SerializeTransportRouter();
     transport_data_base::RouterSettings SerializeRouterSettingsData();
-    transport_data_base::TransportRouterData SerializeTransportRouterClassData();
-    transport_data_base::Router SerializeRouterData();
-    transport_data_base::Graph SerializeGraphData();
+    transport_data_base::TransportRouterData SerializeTransportRouterClass();
+    transport_data_base::Router SerializeRouter();
+    transport_data_base::Graph SerializeGraph();
 
     /// Deserialize
     // Transport catalogue
@@ -67,7 +67,7 @@ private:
     svg::Color DeserializeColor(const transport_data_base::Color& base_color);
     // Transport router
     void DeserializeTransportRouterData(const transport_data_base::TransportRouter& base);
-    transport_router::RouterSettings DeserializeTrasnportRouterSettings(const transport_data_base::RouterSettings& base);
+    transport_router::RouterSettings DeserializeTransportRouterSettings(const transport_data_base::RouterSettings& base);
     void DeserializeTransportRouterClass(const transport_data_base::TransportRouterData& base);
 
     std::unordered_map<std::string_view, size_t>

@@ -9,7 +9,7 @@ namespace transport_data_base {
     void TransportCatalogueSerialization::Serialize(){
         *base_.mutable_transport_catalogue() = std::move(SerializeCatalogue());
         *base_.mutable_map_renderer() = std::move(SerializeMapRenderer());
-        *base_.mutable_transport_router() = std::move(SerializeTransportRouterData());
+        *base_.mutable_transport_router() = std::move(SerializeTransportRouter());
 
         std::filesystem::path path = settings_.file_name;
         std::ofstream out_file(path, std::ios::binary);
@@ -127,13 +127,13 @@ namespace transport_data_base {
     }
 
     transport_data_base::TransportRouter
-    TransportCatalogueSerialization::SerializeTransportRouterData() {
+    TransportCatalogueSerialization::SerializeTransportRouter() {
         transport_data_base::TransportRouter tmp_router;
 
         *tmp_router.mutable_settings() = std::move(SerializeRouterSettingsData());
-        *tmp_router.mutable_transport_router() = std::move(SerializeTransportRouterClassData());
-        *tmp_router.mutable_router() = std::move(SerializeRouterData());
-        *tmp_router.mutable_graph() = std::move(SerializeGraphData());
+        *tmp_router.mutable_transport_router() = std::move(SerializeTransportRouterClass());
+        *tmp_router.mutable_router() = std::move(SerializeRouter());
+        *tmp_router.mutable_graph() = std::move(SerializeGraph());
 
         return tmp_router;
     }
@@ -148,7 +148,7 @@ namespace transport_data_base {
     }
 
     transport_data_base::TransportRouterData
-    TransportCatalogueSerialization::SerializeTransportRouterClassData() {
+    TransportCatalogueSerialization::SerializeTransportRouterClass() {
         transport_data_base::TransportRouterData tmp_tr_router_cd;
         int i = 0;
         for (const auto& [stop, id] : *router_.GetStopToId()) {
@@ -182,7 +182,7 @@ namespace transport_data_base {
     }
 
     transport_data_base::Router
-    TransportCatalogueSerialization::SerializeRouterData() {
+    TransportCatalogueSerialization::SerializeRouter() {
         transport_data_base::Router tmp_router;
         int i = 0;
         for (const auto& data_vector : router_.GetRouterData()) {
@@ -208,7 +208,7 @@ namespace transport_data_base {
     }
 
     transport_data_base::Graph
-    TransportCatalogueSerialization::SerializeGraphData() {
+    TransportCatalogueSerialization::SerializeGraph() {
         transport_data_base::Graph tmp_graph;
         for (int i = 0; i < router_.GetGraph().GetEdgeCount(); ++i) {
             graph::Edge tmp_cat_edge = router_.GetGraph().GetEdge(i);
@@ -324,14 +324,14 @@ namespace transport_data_base {
     }
     // Transport router
     void TransportCatalogueSerialization::DeserializeTransportRouterData(const transport_data_base::TransportRouter& base) {
-        router_.SetSettings(DeserializeTrasnportRouterSettings(base.settings()));
+        router_.SetSettings(DeserializeTransportRouterSettings(base.settings()));
         DeserializeTransportRouterClass(base.transport_router());
         DeserializeRouter(base_.transport_router().router());
         DeserializeGraph(base_.transport_router().graph());
     }
 
     transport_router::RouterSettings
-    TransportCatalogueSerialization::DeserializeTrasnportRouterSettings(const transport_data_base::RouterSettings& base) {
+    TransportCatalogueSerialization::DeserializeTransportRouterSettings(const transport_data_base::RouterSettings& base) {
         transport_router::RouterSettings tmp_settings;
         tmp_settings.bus_velocity = base.bus_velocity_kmh();
         tmp_settings.bus_wait_time = base.bus_wait_time();
