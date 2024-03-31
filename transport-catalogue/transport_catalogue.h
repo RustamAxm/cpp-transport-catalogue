@@ -8,6 +8,7 @@
 #include <cassert>
 #include <stdexcept>
 #include <iostream>
+#include <optional>
 
 #include "geo.h"
 #include "domain.h"
