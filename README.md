@@ -12,3 +12,8 @@ use example
 ```bash
 ./transport_catalogue process_requests < process_request.json 
 ```
+generate for python
+```bash
+protoc -I=cpp-transport-catalogue/transport-catalogue/proto  --python_out=py-proto-tc/ cpp-transport-catalogue/transport-catalogue/proto/*.proto
+
+```

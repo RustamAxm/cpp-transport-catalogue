@@ -7,11 +7,7 @@ find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)
 
 protobuf_generate_cpp(TRANSPORT_CATALOGUE_PROTO_SRCS TRANSPORT_CATALOGUE_PROTO_HDRS
-        transport_catalogue.proto
-        svg.proto
-        map_renderer.proto
-        graph.proto
-        transport_router.proto)
+        proto/*.proto)
 
 set(JSON_FILES json.cpp
         json.h
@@ -25,15 +21,15 @@ set(ROUTER_FILES graph.h
         transport_router.cpp
         transport_router.h
         router.h
-        graph.proto
-        transport_router.proto)
+        proto/graph.proto
+        proto/transport_router.proto)
 
 set(RENDER_FILES svg.cpp
         svg.h
-        svg.proto
+        proto/svg.proto
         map_renderer.cpp
         map_renderer.h
-        map_renderer.proto)
+        proto/map_renderer.proto)
 
 set(TRANSPORT_CATALOGUE_FILES geo.h
         main.cpp
@@ -42,7 +38,7 @@ set(TRANSPORT_CATALOGUE_FILES geo.h
         domain.h
         request_handler.cpp
         request_handler.h
-        transport_catalogue.proto)
+        proto/transport_catalogue.proto)
 
 set(SERIALIZATION_FILES serialization.cpp
         serialization.h)
