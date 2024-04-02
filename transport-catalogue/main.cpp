@@ -2,7 +2,29 @@
 #include "json_reader.h"
 #include "request_handler.h"
 #include "serialization.h"
+#include <zmq.hpp>
 
+
+void ZMQMessage(json_reader::JsonReader reader,
+                std::istream& input,
+                std::ostream& out) {
+    zmq::context_t context(1);
+    zmq::socket_t socket{context, zmq::socket_type::rep};
+    socket.bind("tcp://*:5555");
+    const std::string data {"printed"};
+    for (int i = 0; i < 1; i++) {
+        zmq::message_t request;
+
+        // receive a request from client
+        socket.recv(request, zmq::recv_flags::none);
+
+        reader.AddDataFrame(input); // add to transport catalogue
+
+        reader.DocumentPrinter(out);
+        // send the reply to the client
+        socket.send(zmq::buffer(data), zmq::send_flags::none);
+    }
+}
 
 void PrintUsage(std::ostream& stream = std::cerr) {
     stream << "Usage: transport_catalogue [make_base|process_requests]\n";
@@ -43,6 +65,9 @@ int Production(int argc, char* argv[]) {
     else if (mode == "process_requests") {
         reader.AddDataFrame(input); // add to transport catalogue
         reader.DocumentPrinter(out);
+    }
+    else if (mode == "zmq") {
+        ZMQMessage(reader, input, out);
     }
     else {
         PrintUsage();

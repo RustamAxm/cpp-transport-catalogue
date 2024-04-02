@@ -5,9 +5,24 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)
+## use the hint from above to find where 'zmq.hpp' is located
+find_path(ZeroMQ_INCLUDE_DIR
+        NAMES zmq.hpp
+        PATHS ${PC_ZeroMQ_INCLUDE_DIRS}
+        )
+
+## use the hint from above to find the location of libzmq
+find_library(ZeroMQ_LIBRARY
+        NAMES zmq
+        PATHS ${PC_ZeroMQ_LIBRARY_DIRS}
+        )
 
 protobuf_generate_cpp(TRANSPORT_CATALOGUE_PROTO_SRCS TRANSPORT_CATALOGUE_PROTO_HDRS
-        proto/*.proto)
+        proto/graph.proto
+        proto/map_renderer.proto
+        proto/svg.proto
+        proto/transport_router.proto
+        proto/transport_catalogue.proto)
 
 set(JSON_FILES json.cpp
         json.h
@@ -53,8 +68,9 @@ add_executable(transport_catalogue
 
 target_include_directories(transport_catalogue PUBLIC ${Protobuf_INCLUDE_DIRS})
 target_include_directories(transport_catalogue PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(transport_catalogue PUBLIC ${ZeroMQ_INCLUDE_DIR})
 
 string(REPLACE "protobuf.lib" "protobufd.lib" "Protobuf_LIBRARY_DEBUG" "${Protobuf_LIBRARY_DEBUG}")
 string(REPLACE "protobuf.a" "protobufd.a" "Protobuf_LIBRARY_DEBUG" "${Protobuf_LIBRARY_DEBUG}")
 
-target_link_libraries(transport_catalogue "$<IF:$<CONFIG:Debug>,${Protobuf_LIBRARY_DEBUG},${Protobuf_LIBRARY}>" Threads::Threads)
+target_link_libraries(transport_catalogue ${ZeroMQ_LIBRARY} "$<IF:$<CONFIG:Debug>,${Protobuf_LIBRARY_DEBUG},${Protobuf_LIBRARY}>" Threads::Threads)
