@@ -12,7 +12,7 @@ void ZMQMessage(json_reader::JsonReader reader,
     zmq::socket_t socket{context, zmq::socket_type::rep};
     socket.bind("tcp://*:5555");
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 1; i++) {
         zmq::message_t request;
         std::stringstream in;
         std::stringstream out_str;

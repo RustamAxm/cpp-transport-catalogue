@@ -1,8 +1,9 @@
 
 #include <string>
+#include <zmq.hpp>
+#include <fstream>
 #include <iostream>
 
-#include <zmq.hpp>
 
 int main()
 {
@@ -13,40 +14,29 @@ int main()
     zmq::socket_t socket{context, zmq::socket_type::req};
     socket.connect("tcp://localhost:5555");
 
-    // set up some static data to send
-    const std::string data{"{\n"
-                           "  \"serialization_settings\": {\n"
-                           "    \"file\": \"transport_catalogue.db\"\n"
-                           "  },\n"
-                           "  \"stat_requests\": [\n"
-                           "    {\n"
-                           "      \"id\": 218563507,\n"
-                           "      \"type\": \"Bus\",\n"
-                           "      \"name\": \"14\"\n"
-                           "    },\n"
-                           "    {\n"
-                           "      \"id\": 508658276,\n"
-                           "      \"type\": \"Stop\",\n"
-                           "      \"name\": \"Электросети\"\n"
-                           "    },\n"
-                           "    {\n"
-                           "      \"id\": 1964680131,\n"
-                           "      \"type\": \"Route\",\n"
-                           "      \"from\": \"Морской вокзал\",\n"
-                           "      \"to\": \"Параллельная улица\"\n"
-                           "    },\n"
-                           "    {\n"
-                           "      \"id\": 1359372752,\n"
-                           "      \"type\": \"Map\"\n"
-                           "    }\n"
-                           "  ]\n"
-                           "}"};
+    std::istream& input = std::cin;
+    std::stringstream in_str;
 
-    for (auto request_num = 0; request_num < 3; ++request_num)
+    std::ifstream inputFile("../../process_request.json");
+
+    // Check if the file is open
+    if (!inputFile.is_open()) {
+        std::cerr << "Error opening file for reading." << std::endl;
+        return 1;
+    }
+
+    std::stringstream ss;
+    ss << inputFile.rdbuf();
+    inputFile.close();
+    std::string content = ss.str();
+
+    std::cout << content << std::endl;
+
+    for (auto request_num = 0; request_num < 1; ++request_num)
     {
         // send the request message
         std::cout << "Sending Hello " << request_num << "..." << std::endl;
-        socket.send(zmq::buffer(data), zmq::send_flags::none);
+        socket.send(zmq::buffer(content), zmq::send_flags::none);
 
         // wait for reply from server
         zmq::message_t reply{};

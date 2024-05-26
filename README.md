@@ -17,3 +17,8 @@ generate for python
 protoc -I=cpp-transport-catalogue/transport-catalogue/proto  --python_out=py-proto-tc/ cpp-transport-catalogue/transport-catalogue/proto/*.proto
 
 ```
+zmq server
+```bash
+./transport_catalogue zmq
+```
+Client part in zmq_client
