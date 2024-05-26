@@ -11,17 +11,24 @@ void ZMQMessage(json_reader::JsonReader reader,
     zmq::context_t context(1);
     zmq::socket_t socket{context, zmq::socket_type::rep};
     socket.bind("tcp://*:5555");
-    const std::string data {"printed"};
-    for (int i = 0; i < 1; i++) {
-        zmq::message_t request;
 
+    for (int i = 0; i < 3; i++) {
+        zmq::message_t request;
+        std::stringstream in;
+        std::stringstream out_str;
         // receive a request from client
         socket.recv(request, zmq::recv_flags::none);
+        auto data_rq = request.to_string();
+        std::cout << "start req" << std::endl;
+        std::cout << data_rq << " siae = " << data_rq.size() << std::endl;
+        std::cout << "end req" << std::endl;
 
-        reader.AddDataFrame(input); // add to transport catalogue
-
-        reader.DocumentPrinter(out);
+        in << data_rq << std::endl;
+        reader.AddDataFrame(in); // add to transport catalogue
+        reader.DocumentPrinter(out_str);
         // send the reply to the client
+        auto data = out_str.str();
+        std::cout << data << " size = " << data.size() << std::endl;
         socket.send(zmq::buffer(data), zmq::send_flags::none);
     }
 }

@@ -14,9 +14,35 @@ int main()
     socket.connect("tcp://localhost:5555");
 
     // set up some static data to send
-    const std::string data{"Hello"};
+    const std::string data{"{\n"
+                           "  \"serialization_settings\": {\n"
+                           "    \"file\": \"transport_catalogue.db\"\n"
+                           "  },\n"
+                           "  \"stat_requests\": [\n"
+                           "    {\n"
+                           "      \"id\": 218563507,\n"
+                           "      \"type\": \"Bus\",\n"
+                           "      \"name\": \"14\"\n"
+                           "    },\n"
+                           "    {\n"
+                           "      \"id\": 508658276,\n"
+                           "      \"type\": \"Stop\",\n"
+                           "      \"name\": \"Электросети\"\n"
+                           "    },\n"
+                           "    {\n"
+                           "      \"id\": 1964680131,\n"
+                           "      \"type\": \"Route\",\n"
+                           "      \"from\": \"Морской вокзал\",\n"
+                           "      \"to\": \"Параллельная улица\"\n"
+                           "    },\n"
+                           "    {\n"
+                           "      \"id\": 1359372752,\n"
+                           "      \"type\": \"Map\"\n"
+                           "    }\n"
+                           "  ]\n"
+                           "}"};
 
-    for (auto request_num = 0; request_num < 10; ++request_num)
+    for (auto request_num = 0; request_num < 3; ++request_num)
     {
         // send the request message
         std::cout << "Sending Hello " << request_num << "..." << std::endl;
